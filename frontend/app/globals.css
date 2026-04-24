@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Paper */
+  --paper: #f6f3ec;
+  --paper-deep: #efeadd;
+  /* Ink */
+  --ink: #1a1a17;
+  --ink-muted: #6b665c;
+  --ink-faint: #a8a294;
+  /* Accent */
+  --ochre: #b6874a;
+  --ochre-soft: rgba(182, 135, 74, 0.18);
+  /* Hairlines */
+  --rule: rgba(26, 26, 23, 0.14);
+  --rule-faint: rgba(26, 26, 23, 0.07);
+
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "ss02", "cv11";
+}
+
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+  position: relative;
+}
+
+::selection {
+  background: var(--ochre);
+  color: var(--paper);
+}
+
+/* Restore selection contrast on the pull-quote (which sits on tinted bg) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Paper grain — applied as a fixed, low-opacity overlay */
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+}
+
+/* Hairline rule helpers */
+.hairline {
+  background: var(--rule);
+  height: 1px;
+  width: 100%;
+  transform-origin: left center;
+}
+
+.hairline-v {
+  background: var(--rule);
+  width: 1px;
+  height: 100%;
+  transform-origin: top center;
+}
+
+/* Focus ring — ochre, editorial */
+:where(a, button, [role="button"]):focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Lenis smooth scroll setup */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Typewriter cursor */
+.caret {
+  display: inline-block;
+  width: 0.55ch;
+  height: 1em;
+  background: var(--ink);
+  vertical-align: -0.12em;
+  margin-left: 2px;
+  animation: caret-blink 1s steps(2, end) infinite;
+}
+
+@keyframes caret-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Audio waveform bars */
+.wave-bar {
+  display: inline-block;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--ink);
+  transform-origin: center;
+  animation: wave-bar 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@keyframes wave-bar {
+  0%,
+  100% {
+    transform: scaleY(0.22);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Scroll progress rail */
+.scroll-rail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule-faint);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.scroll-rail__fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--ochre);
+  transform-origin: top;
+}
