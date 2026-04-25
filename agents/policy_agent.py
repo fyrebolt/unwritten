@@ -1,36 +1,30 @@
-try:
-    from .agent_workflow import find_policy_loopholes as lookup_policy_findings
-except ImportError:
-    from agent_workflow import find_policy_loopholes as lookup_policy_findings
-
-try:
-    from uagents import Agent, Context, Model
-except ImportError:  # pragma: no cover - optional dependency
-    Agent = Context = Model = None
+from uagents import Agent, Context, Model
 
 
-if Model is not None:
-    class ResearchRequest(Model):
-        case_data: dict
+class ResearchRequest(Model):
+    case_data: dict
 
 
-    class PolicyFindings(Model):
-        loophole: str
-        citation: str
+class PolicyFindings(Model):
+    loophole: str
+    citation: str
 
 
-    agent = Agent(name="PolicyAgent", seed="ucla_policy_v1")
+agent = Agent(name="PolicyAgent", seed="ucla_policy_v1", port=8001, endpoint=["http://127.0.0.1:8001/submit"])
 
-    @agent.on_message(model=ResearchRequest)
-    async def find_policy_loopholes(ctx: Context, sender: str, msg: ResearchRequest):
-        findings = lookup_policy_findings(msg.case_data)
-        ctx.logger.info(f"Checking policy for {msg.case_data.get('insurer')}")
-        await ctx.send(sender, PolicyFindings(**findings))
-else:
-    agent = None
+@agent.on_message(model=ResearchRequest)
+async def find_policy_loopholes(ctx: Context, sender: str, msg: ResearchRequest):
+    ctx.logger.info(f"Checking policy for {msg.case_data.get('insurer')}")
+   
+    # LOGIC: Mocking a search in Anthem's Evidence of Coverage
+    finding = "Step therapy requirement is satisfied if documented intolerance to Metformin exists."
+    source = "Anthem Clinical Policy Bulletin #MED.0001"
+   
+    await ctx.send(sender, PolicyFindings(loophole=finding, citation=source))
 
 
 if __name__ == "__main__":
-    if agent is None:
-        raise SystemExit("uagents is not installed. Install it before running policy_agent.py.")
     agent.run()
+
+
+

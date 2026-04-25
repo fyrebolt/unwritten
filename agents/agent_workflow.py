@@ -1,215 +1,110 @@
-import json
+import subprocess
+import sys
+import time
 import os
-import re
-from typing import Any
+from pathlib import Path
+from dotenv import load_dotenv
+import json
+import requests
 
-try:
-    import requests
-except ImportError:  # pragma: no cover - optional dependency
-    requests = None
+load_dotenv()
 
-
-DEFAULT_CASE_DATA = {
-    "insurer": "Anthem",
-    "medication": "Ozempic",
-    "denial_reason": "Step Therapy",
-}
+_AGENTS_DIR = Path(__file__).parent
 
 
-def sanitize_user_input(user_input: str) -> str:
-    text = (user_input or "").strip()
-    return text.replace("@insurance-analyst", "").strip()
+def run_system():
+    agents = [
+        "intake_agent.py",
+        "policy_agent.py",
+        "evidence_agent.py",
+        "drafter_agent.py",
+    ]
 
+    processes = []
+    print("Starting the Insurance Appeal Agent Network...")
 
-def _extract_json_object(raw_text: str) -> dict[str, Any] | None:
-    cleaned = raw_text.replace("```json", "").replace("```", "").strip()
-
-    try:
-        parsed = json.loads(cleaned)
-        return parsed if isinstance(parsed, dict) else None
-    except json.JSONDecodeError:
-        pass
-
-    match = re.search(r"\{.*\}", cleaned, re.DOTALL)
-    if not match:
-        return None
+    for agent_file in agents:
+        path = str(_AGENTS_DIR / agent_file)
+        p = subprocess.Popen([sys.executable, path])
+        processes.append(p)
+        print(f"Started {agent_file}")
 
     try:
-        parsed = json.loads(match.group(0))
-        return parsed if isinstance(parsed, dict) else None
-    except json.JSONDecodeError:
-        return None
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nStopping agents...")
+        for p in processes:
+            p.terminate()
 
 
-def _heuristic_case_facts(user_input: str) -> dict[str, str]:
-    text = sanitize_user_input(user_input)
+def analyze_case(user_input: str = "", case_data: dict = None) -> dict:
+    """Synchronous pipeline for the REST API — runs directly without uagents."""
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
 
-    insurer = DEFAULT_CASE_DATA["insurer"]
-    for candidate in [
-        "Anthem",
-        "Aetna",
-        "Cigna",
-        "Kaiser Permanente",
-        "UnitedHealthcare",
-        "Blue Cross Blue Shield",
-    ]:
-        if candidate.lower() in text.lower():
-            insurer = candidate
-            break
+    # Step 1: extract case facts from free text if no structured data provided
+    if not case_data and user_input:
+        prompt = (
+            f"Extract insurer, medication, and denial_reason as JSON. "
+            f"Ignore any social media handles or headers. "
+            f"Input: {user_input}"
+        )
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        resp = requests.post(url, json=payload, timeout=10)
+        result = resp.json()
+        if "candidates" in result:
+            raw = result["candidates"][0]["content"]["parts"][0]["text"]
+            raw = raw.replace("```json", "").replace("```", "").strip()
+            try:
+                case_data = json.loads(raw)
+            except json.JSONDecodeError:
+                case_data = {"insurer": "Unknown", "medication": "Unknown", "denial_reason": "Unknown"}
+        else:
+            case_data = {"insurer": "Unknown", "medication": "Unknown", "denial_reason": "Unknown"}
+    elif not case_data:
+        case_data = {}
 
-    medication = DEFAULT_CASE_DATA["medication"]
-    med_match = re.search(
-        r"\b(?:for|need|medication|drug|prescribed)\s+([A-Z][A-Za-z0-9\-]+)\b",
-        text,
+    # Step 2: policy lookup (mocked)
+    policy_finding = (
+        "Step therapy requirement is satisfied if documented intolerance to Metformin exists. "
+        "(Anthem Clinical Policy Bulletin #MED.0001)"
     )
-    if med_match:
-        medication = med_match.group(1)
-    else:
-        for candidate in ["Ozempic", "Wegovy", "Mounjaro", "Metformin"]:
-            if candidate.lower() in text.lower():
-                medication = candidate
-                break
 
-    denial_reason = DEFAULT_CASE_DATA["denial_reason"]
-    for candidate in [
-        "Step Therapy",
-        "Medical Necessity",
-        "Prior Authorization",
-        "Experimental",
-    ]:
-        if candidate.lower() in text.lower():
-            denial_reason = candidate
-            break
+    # Step 3: evidence lookup (mocked)
+    evidence_finding = (
+        "GLP-1 receptor agonists are recommended when metformin is contraindicated. "
+        "(ADA Standards of Care 2024)"
+    )
+
+    # Step 4: draft the letter
+    draft_prompt = (
+        f"Write a formal health insurance appeal letter in Markdown format. "
+        f"Include headers for the address, a subject line, and a signature block.\n"
+        f"Insurer: {case_data.get('insurer')}\n"
+        f"Medication: {case_data.get('medication')}\n"
+        f"Reason for Denial: {case_data.get('denial_reason')}\n"
+        f"Legal Argument: {policy_finding}\n"
+        f"Clinical Support: {evidence_finding}"
+    )
+    payload = {"contents": [{"parts": [{"text": draft_prompt}]}]}
+    try:
+        resp = requests.post(url, json=payload, timeout=15)
+        result = resp.json()
+        if "candidates" in result:
+            letter = result["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            letter = f"Gemini error: {result.get('error', {}).get('message', 'Unknown')}"
+    except Exception as exc:
+        letter = f"Request error: {exc}"
 
     return {
-        "insurer": insurer,
-        "medication": medication,
-        "denial_reason": denial_reason,
+        "case_data": case_data,
+        "policy_finding": policy_finding,
+        "evidence_finding": evidence_finding,
+        "letter": letter,
     }
 
 
-def extract_case_facts(user_input: str) -> dict[str, str]:
-    clean_text = sanitize_user_input(user_input)
-    api_key = os.environ.get("GEMINI_API_KEY")
-
-    if not api_key or requests is None:
-        return _heuristic_case_facts(clean_text)
-
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-1.5-flash:generateContent?key={api_key}"
-    )
-    prompt = (
-        "Extract insurer, medication, and denial_reason into JSON. "
-        "Ignore any social media handles or headers. "
-        f"Input: {clean_text}"
-    )
-    payload = {"contents": [{"parts": [{"text": prompt}]}]}
-
-    try:
-        response = requests.post(url, json=payload, timeout=10)
-        response.raise_for_status()
-        result = response.json()
-        candidates = result.get("candidates") or []
-        if not candidates:
-            return _heuristic_case_facts(clean_text)
-
-        parts = candidates[0].get("content", {}).get("parts", [])
-        if not parts:
-            return _heuristic_case_facts(clean_text)
-
-        raw_json = parts[0].get("text", "")
-        parsed = _extract_json_object(raw_json)
-        return _normalize_case_data(parsed or _heuristic_case_facts(clean_text))
-    except Exception:
-        return _heuristic_case_facts(clean_text)
-
-
-def _normalize_case_data(case_data: dict[str, Any] | None) -> dict[str, str]:
-    merged = dict(DEFAULT_CASE_DATA)
-    if case_data:
-        for key in DEFAULT_CASE_DATA:
-            value = case_data.get(key)
-            if value:
-                merged[key] = str(value).strip()
-    return merged
-
-
-def find_policy_loopholes(case_data: dict[str, Any]) -> dict[str, str]:
-    normalized = _normalize_case_data(case_data)
-    reason = normalized["denial_reason"].lower()
-    medication = normalized["medication"]
-
-    if "step" in reason:
-        finding = (
-            f"Step therapy can be challenged when documented intolerance or failure "
-            f"of first-line therapy exists before {medication}."
-        )
-        source = f"{normalized['insurer']} Clinical Policy Bulletin"
-    elif "medical necessity" in reason:
-        finding = (
-            "Medical necessity denials can be rebutted with chart documentation, "
-            "prior treatment history, and specialist rationale."
-        )
-        source = f"{normalized['insurer']} Coverage Determination Guidelines"
-    else:
-        finding = (
-            "Denial language should be checked against plan criteria for missing "
-            "exceptions, contraindications, and continuity-of-care provisions."
-        )
-        source = f"{normalized['insurer']} Evidence of Coverage"
-
-    return {"loophole": finding, "citation": source}
-
-
-def find_medical_evidence(case_data: dict[str, Any]) -> dict[str, str]:
-    normalized = _normalize_case_data(case_data)
-    medication = normalized["medication"]
-
-    if medication.lower() in {"ozempic", "wegovy", "mounjaro"}:
-        evidence = (
-            f"Current diabetes and obesity guidelines support {medication} or related "
-            "GLP-1 therapy when first-line treatment is contraindicated or ineffective."
-        )
-        source = "ADA Standards of Care 2024"
-    else:
-        evidence = (
-            "Specialty-society guidelines and treating-clinician documentation can "
-            "establish benefit when standard alternatives have failed."
-        )
-        source = "Treating specialist documentation and society guidance"
-
-    return {"clinical_evidence": evidence, "citation": source}
-
-
-def build_final_report(
-    case_data: dict[str, Any],
-    policy_data: dict[str, str],
-    evidence_data: dict[str, str],
-) -> str:
-    normalized = _normalize_case_data(case_data)
-    return (
-        "**Appeal Strategy Ready**\n\n"
-        f"**Case Summary:** {normalized['insurer']} denied {normalized['medication']} "
-        f"for {normalized['denial_reason']}.\n\n"
-        f"**Contractual Loophole:** {policy_data['loophole']} "
-        f"(Source: {policy_data['citation']})\n\n"
-        f"**Medical Evidence:** {evidence_data['clinical_evidence']} "
-        f"(Source: {evidence_data['citation']})\n\n"
-        "I am now drafting your final letter..."
-    )
-
-
-def analyze_case(
-    user_input: str | None = None,
-    case_data: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    normalized_case = _normalize_case_data(case_data or extract_case_facts(user_input or ""))
-    policy = find_policy_loopholes(normalized_case)
-    evidence = find_medical_evidence(normalized_case)
-    return {
-        "case_data": normalized_case,
-        "policy": policy,
-        "evidence": evidence,
-        "final_report": build_final_report(normalized_case, policy, evidence),
-    }
+if __name__ == "__main__":
+    run_system()

@@ -1,151 +1,175 @@
+import io
 import os
-import uuid
+import json
+import requests
+import pypdf
+from uagents import Agent, Context, Protocol, Model
+from uagents_core.contrib.protocols.chat import (
+    ChatMessage,
+    TextContent,
+    ChatAcknowledgement,
+    chat_protocol_spec,
+)
+from dotenv import load_dotenv
 
-try:
-    from .agent_workflow import (
-        analyze_case,
-        build_final_report,
-        extract_case_facts,
-        sanitize_user_input,
+load_dotenv()
+
+
+class DraftRequest(Model):
+    case_data: dict
+    policy_finding: str
+    evidence_finding: str
+    api_key: str
+
+
+class FinalLetter(Model):
+    letter_body: str
+
+
+class UniversalRequest(Model):
+    data: dict
+
+
+class ResearchRequest(Model):
+    case_data: dict
+
+
+class PolicyFindings(Model):
+    loophole: str
+    citation: str
+
+
+class EvidenceFindings(Model):
+    clinical_evidence: str
+    citation: str
+
+
+def extract_case_facts(user_input: str) -> dict:
+    api_key = os.environ.get("GEMINI_API_KEY")
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key={api_key}"
+
+    prompt = (
+        f"Extract insurer, medication, and denial_reason into JSON. "
+        f"Ignore any social media handles or headers. "
+        f"Input: {user_input}"
     )
-except ImportError:
-    from agent_workflow import (
-        analyze_case,
-        build_final_report,
-        extract_case_facts,
-        sanitize_user_input,
-    )
+    payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
-try:
-    from uagents import Agent, Context, Protocol, Model
-    from uagents_core.contrib.protocols.chat import (
-        ChatAcknowledgement,
-        ChatMessage,
-        TextContent,
-    )
-except ImportError:  # pragma: no cover - optional dependency
-    Agent = Context = Protocol = Model = None
-    ChatAcknowledgement = ChatMessage = TextContent = None
+    response = requests.post(url, json=payload, timeout=10)
+    result = response.json()
+
+    if "candidates" not in result:
+        return {"insurer": "Anthem", "medication": "Ozempic", "denial_reason": "Step Therapy"}
+
+    raw_json = result["candidates"][0]["content"]["parts"][0]["text"]
+    raw_json = raw_json.replace("```json", "").replace("```", "").strip()
+    return json.loads(raw_json)
 
 
-if Model is not None:
-    class UniversalRequest(Model):
-        data: dict
+def extract_pdf_text(pdf_bytes: bytes) -> str:
+    try:
+        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+        return "\n".join(page.extract_text() or "" for page in reader.pages).strip()
+    except Exception as exc:
+        return f"[PDF extraction failed: {exc}]"
 
 
-    class ResearchRequest(Model):
-        case_data: dict
+AGENTVERSE_API_KEY = os.environ.get("AGENTVERSE_API_KEY", "")
+
+agent = Agent(
+    name="IntakeAgent3",
+    seed="ucla_intake_v3",
+    port=8004,
+    endpoint=["http://127.0.0.1:8004/submit"],
+    agentverse=AGENTVERSE_API_KEY,
+    mailbox=True,
+)
+
+POLICY_ADDR = "agent1q2qnclxx929zuean54py9utyl8sutnec97kyh43mrzrsstwderlhsnl7hnw"
+EVIDENCE_ADDR = "agent1qvrav9d93ydghzjvgc09ew26v4rnwv2v57j054j98tpy9q90ajfrs5ec8st"
+DRAFTER_ADDR = "agent1qg4nhgzk3d3m3jt9vmuu7l94s9eu37wz0utq5expcg6rc0dtn9vhyhacpdd"
+
+chat_proto = Protocol(spec=chat_protocol_spec)
 
 
-    class PolicyFindings(Model):
-        loophole: str
-        citation: str
+def _reset_state(ctx: Context):
+    ctx.storage.set("case_facts", None)
+    ctx.storage.set("policy_data", None)
+    ctx.storage.set("evidence_data", None)
+    ctx.storage.set("human_user", None)
+    ctx.storage.set("drafter_sent", False)
 
 
-    class EvidenceFindings(Model):
-        clinical_evidence: str
-        citation: str
+@chat_proto.on_message(model=ChatMessage, replies={ChatAcknowledgement})
+async def start_orchestration(ctx: Context, sender: str, msg: ChatMessage):
+    ctx.logger.info("Received message from ASI:One")
+
+    await ctx.send(sender, ChatAcknowledgement(acknowledged_msg_id=msg.msg_id))
+
+    raw_text = msg.content[0].text
+    clean_text = raw_text.replace("@insurance-analyst", "").strip()
+
+    _reset_state(ctx)
+    ctx.storage.set("human_user", sender)
+
+    try:
+        case_data = extract_case_facts(clean_text)
+        ctx.storage.set("case_facts", case_data)
+        ctx.logger.info(f"Case parsed: {case_data}")
+
+        await ctx.send(POLICY_ADDR, ResearchRequest(case_data=case_data))
+        await ctx.send(EVIDENCE_ADDR, UniversalRequest(data=case_data))
+
+        await ctx.send(sender, ChatMessage(content=[
+            TextContent(type="text", text=f"Analyzing coverage for {case_data.get('medication', 'your treatment')}...")
+        ]))
+    except Exception as exc:
+        ctx.logger.error(f"Intake error: {exc}")
 
 
-    agent = Agent(name="IntakeAgent", seed="ucla_intake_v1")
-    POLICY_ADDR = os.environ.get("POLICY_AGENT_ADDRESS", "")
-    EVIDENCE_ADDR = os.environ.get("EVIDENCE_AGENT_ADDRESS", "")
-    chat_proto = Protocol(name="ChatProtocol", version="1.0")
-
-    @chat_proto.on_message(model=ChatMessage, replies={ChatAcknowledgement})
-    async def start_orchestration(ctx: Context, sender: str, msg: ChatMessage):
-        ctx.logger.info("Received intake request")
-
-        msg_id = str(ctx.session) if ctx.session else str(uuid.uuid4())
-        await ctx.send(sender, ChatAcknowledgement(acknowledged_msg_id=msg_id))
-
-        raw_text = msg.content[0].text if msg.content else ""
-        clean_text = sanitize_user_input(raw_text)
-        ctx.storage.set("human_user", sender)
-
-        try:
-            case_data = extract_case_facts(clean_text)
-            ctx.logger.info(f"Parsed case: {case_data}")
-
-            await ctx.send(
-                sender,
-                ChatMessage(
-                    content=[
-                        TextContent(
-                            type="text",
-                            text=f"Analyzing coverage for {case_data.get('medication', 'your treatment')}...",
-                        )
-                    ]
-                ),
-            )
-
-            if POLICY_ADDR and EVIDENCE_ADDR:
-                ctx.storage.set("case_data", case_data)
-                await ctx.send(POLICY_ADDR, ResearchRequest(case_data=case_data))
-                await ctx.send(EVIDENCE_ADDR, UniversalRequest(data=case_data))
-            else:
-                result = analyze_case(case_data=case_data)
-                await ctx.send(
-                    sender,
-                    ChatMessage(
-                        content=[TextContent(type="text", text=result["final_report"])]
-                    ),
-                )
-
-        except Exception as exc:
-            ctx.logger.error(f"Handler Error: {exc}")
-            await ctx.send(
-                sender,
-                ChatMessage(
-                    content=[
-                        TextContent(
-                            type="text",
-                            text="I hit an internal processing error while analyzing that case.",
-                        )
-                    ]
-                ),
-            )
+@agent.on_message(model=PolicyFindings)
+async def handle_policy(ctx: Context, sender: str, msg: PolicyFindings):
+    ctx.storage.set("policy_data", f"{msg.loophole} (Source: {msg.citation})")
+    await _check_if_ready(ctx)
 
 
-    @agent.on_message(model=PolicyFindings)
-    async def handle_policy(ctx: Context, sender: str, msg: PolicyFindings):
-        ctx.storage.set("policy_data", {"loophole": msg.loophole, "citation": msg.citation})
-        await check_if_ready(ctx)
+@agent.on_message(model=EvidenceFindings)
+async def handle_evidence(ctx: Context, sender: str, msg: EvidenceFindings):
+    ctx.storage.set("evidence_data", f"{msg.clinical_evidence} (Source: {msg.citation})")
+    await _check_if_ready(ctx)
 
 
-    @agent.on_message(model=EvidenceFindings)
-    async def handle_evidence(ctx: Context, sender: str, msg: EvidenceFindings):
-        ctx.storage.set(
-            "evidence_data",
-            {"clinical_evidence": msg.clinical_evidence, "citation": msg.citation},
-        )
-        await check_if_ready(ctx)
+async def _check_if_ready(ctx: Context):
+    if ctx.storage.get("drafter_sent"):
+        return
+
+    p = ctx.storage.get("policy_data")
+    e = ctx.storage.get("evidence_data")
+    human = ctx.storage.get("human_user")
+    case_data = ctx.storage.get("case_facts")
+
+    if p and e and human and case_data:
+        ctx.storage.set("drafter_sent", True)
+        ctx.logger.info("All data gathered — sending to drafter")
+        working_key = os.environ.get("GEMINI_API_KEY")
+        await ctx.send(DRAFTER_ADDR, DraftRequest(
+            case_data=case_data,
+            policy_finding=p,
+            evidence_finding=e,
+            api_key=working_key,
+        ))
 
 
-    async def check_if_ready(ctx: Context):
-        policy = ctx.storage.get("policy_data")
-        evidence = ctx.storage.get("evidence_data")
-        human = ctx.storage.get("human_user")
-        case_data = ctx.storage.get("case_data") or {}
-
-        if policy and evidence and human:
-            final_report = build_final_report(case_data, policy, evidence)
-
-            await ctx.send(
-                human,
-                ChatMessage(content=[TextContent(type="text", text=final_report)]),
-            )
-            ctx.storage.set("policy_data", None)
-            ctx.storage.set("evidence_data", None)
-            ctx.storage.set("case_data", None)
+@agent.on_message(model=FinalLetter)
+async def handle_final_letter(ctx: Context, sender: str, msg: FinalLetter):
+    human = ctx.storage.get("human_user")
+    _reset_state(ctx)
+    await ctx.send(human, ChatMessage(content=[
+        TextContent(type="text", text=f"**Your Custom Appeal Letter is Ready:**\n\n{msg.letter_body}")
+    ]))
 
 
-    agent.include(chat_proto, publish_manifest=True)
-else:
-    agent = None
-
+agent.include(chat_proto, publish_manifest=True)
 
 if __name__ == "__main__":
-    if agent is None:
-        raise SystemExit("uagents is not installed. Install it before running intake_agent.py.")
     agent.run()
