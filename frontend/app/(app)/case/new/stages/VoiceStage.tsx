@@ -7,6 +7,7 @@ import { Waveform } from "@/components/ui/Waveform";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
 import { cn } from "@/lib/utils";
+import { getApiBase } from "@/lib/api";
 import { transcribeRecording } from "@/lib/intake/transcribe-audio";
 
 type Mode = "idle" | "recording" | "processing" | "done" | "error";
@@ -16,6 +17,16 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 }
 
+async function fetchIntakeWhisperReady(): Promise<boolean> {
+  try {
+    const res = await fetch(`${getApiBase()}/health`);
+    const data = (await res.json()) as { intakeWhisper?: boolean };
+    return Boolean(data.intakeWhisper);
+  } catch {
+    return false;
+  }
+}
+
 export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) {
   const [mode, setMode] = useState<Mode>("idle");
   const [seconds, setSeconds] = useState(0);
@@ -23,6 +34,9 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [useChat, setUseChat] = useState(false);
   const [chatMsg, setChatMsg] = useState("");
+  /** null = not yet checked (hydration). */
+  const [webSpeechSupported, setWebSpeechSupported] = useState<boolean | null>(null);
+  const [whisperBackupReady, setWhisperBackupReady] = useState<boolean | null>(null);
   const tickRef = useRef<number | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const transcriptRef = useRef("");
@@ -52,14 +66,36 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
 
   useEffect(() => () => cleanupMedia(), [cleanupMedia]);
 
+  useEffect(() => {
+    setWebSpeechSupported(Boolean(getSpeechRecognitionCtor()));
+    let cancelled = false;
+    void fetchIntakeWhisperReady().then((ok) => {
+      if (!cancelled) setWhisperBackupReady(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const start = async () => {
     setErrorMessage(null);
     setTranscript("");
     transcriptRef.current = "";
     setSeconds(0);
-    setMode("recording");
 
     const SR = getSpeechRecognitionCtor();
+    const whisper = await fetchIntakeWhisperReady();
+    setWhisperBackupReady(whisper);
+
+    if (!SR && !whisper) {
+      setMode("error");
+      setErrorMessage(
+        "This browser has no live speech-to-text, and the server has no Whisper backup. Set LOCAL_WHISPER=1 with openai-whisper + ffmpeg on the API host, or OPENAI_API_KEY for the Whisper API (backend/.env), restart the server, use “type instead”, or open this page in Edge or Chrome with backup enabled.",
+      );
+      return;
+    }
+
+    setMode("recording");
     const useSpeech = Boolean(SR);
 
     try {
@@ -84,12 +120,13 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
         r.continuous = true;
         r.interimResults = true;
         r.lang = "en-US";
-        let built = "";
         r.onresult = (event: SpeechRecognitionEvent) => {
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            built += event.results[i]![0]!.transcript;
+          let line = "";
+          for (let i = 0; i < event.results.length; i++) {
+            const alt = event.results[i]?.[0];
+            if (alt?.transcript) line += alt.transcript;
           }
-          const t = built.trim();
+          const t = line.trim();
           transcriptRef.current = t;
           setTranscript(t);
         };
@@ -110,7 +147,8 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
 
     recognitionRef.current?.stop();
     recognitionRef.current = null;
-    await new Promise((r) => setTimeout(r, 200));
+    // Final SpeechRecognition results often arrive shortly after stop().
+    await new Promise((r) => setTimeout(r, 450));
 
     const mr = mediaRecorderRef.current;
     const stream = mediaStreamRef.current;
@@ -125,7 +163,8 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
     mediaStreamRef.current = null;
 
     const speechText = transcriptRef.current.trim();
-    if (speechText.length >= 4) {
+    if (speechText.length >= 1) {
+      setTranscript(speechText);
       setMode("done");
       return;
     }
@@ -141,6 +180,17 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
       return;
     }
 
+    const whisperAvailable = await fetchIntakeWhisperReady();
+    setWhisperBackupReady(whisperAvailable);
+
+    if (!whisperAvailable) {
+      setMode("error");
+      setErrorMessage(
+        "We couldn’t turn speech into text in this browser, and the API has no Whisper backup. Set LOCAL_WHISPER=1 (open-source Whisper on the server) or OPENAI_API_KEY in backend/.env, restart the server, try Edge/Chrome for live captions, or use “type instead” below.",
+      );
+      return;
+    }
+
     setMode("processing");
     try {
       const text = await transcribeRecording(blob);
@@ -148,10 +198,15 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
       setMode("done");
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Transcription failed.";
-      if (/501|OPENAI_API_KEY|not set on the API/i.test(msg)) {
+      const missingKey =
+        /\b501\b/i.test(msg) ||
+        /OPENAI_API_KEY|LOCAL_WHISPER|not set on the API|No server speech-to-text|No intake transcription/i.test(
+          msg,
+        );
+      if (missingKey) {
         setMode("error");
         setErrorMessage(
-          "No live speech detected and the API has no OPENAI_API_KEY for Whisper. Use Chrome for speech-to-text, or type your context below.",
+          "Whisper backup is unavailable (LOCAL_WHISPER=1 + openai-whisper on the server, or OPENAI_API_KEY). Check backend/.env and restart. Speak a little longer, try Edge/Chrome for live captions, or type below.",
         );
       } else {
         setMode("error");
@@ -179,8 +234,22 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
           In your own words — what happened?
         </h1>
         <p className="max-w-[44ch] font-serif text-[1.05rem] leading-[1.6] text-ink-muted">
-          We listen in the browser (Chrome speech API) and keep a backup recording for Whisper on
-          the API when <code className="text-[11px] text-ink">OPENAI_API_KEY</code> is set.
+          In Chromium browsers (Chrome, Edge, Brave, …) we show live captions via Web Speech when the
+          browser supports it. We always keep a microphone recording; if there are no live captions or
+          they’re wrong, the server can transcribe the recording using open-source Whisper (
+          <code className="text-[11px] text-ink">LOCAL_WHISPER=1</code> per{" "}
+          <a
+            className="text-ochre underline decoration-ochre/40 underline-offset-2 hover:text-ink"
+            href="https://github.com/openai/whisper"
+            target="_blank"
+            rel="noreferrer"
+          >
+            openai/whisper
+          </a>
+          ) or the Whisper API (<code className="text-[11px] text-ink">OPENAI_API_KEY</code> in{" "}
+          <code className="text-[11px] text-ink">backend/.env</code>). Firefox skips live captions and relies
+          on that recording + Whisper, or <span className="text-ink">type instead</span>. Optional{" "}
+          <code className="text-[11px] text-ink">ANTHROPIC_API_KEY</code> polishes the transcript.
         </p>
         <button
           type="button"
@@ -202,6 +271,11 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
               transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col gap-6"
             >
+              <VoicePathHints
+                webSpeechSupported={webSpeechSupported}
+                whisperBackupReady={whisperBackupReady}
+              />
+
               <div className="relative flex h-[220px] w-full flex-col items-center justify-center gap-6 border border-rule bg-paper-deep/40 px-8">
                 <button
                   type="button"
@@ -239,7 +313,9 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
                       <Waveform active bars={28} />
                     </div>
                     <p className="font-sans text-[11px] uppercase tracking-[0.22em] text-ink-muted">
-                      {formatTime(seconds)} · listening
+                      {webSpeechSupported === false
+                        ? `${formatTime(seconds)} · recording (Whisper after stop)`
+                        : `${formatTime(seconds)} · listening`}
                     </p>
                   </>
                 )}
@@ -250,7 +326,7 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
                 )}
                 {mode === "processing" && (
                   <p className="font-sans text-[11px] uppercase tracking-[0.22em] text-ink-muted">
-                    Sending audio to API…
+                    Transcribing audio…
                   </p>
                 )}
                 {(mode === "done" || mode === "error") && (
@@ -320,6 +396,49 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
       </div>
     </div>
   );
+}
+
+function VoicePathHints({
+  webSpeechSupported,
+  whisperBackupReady,
+}: {
+  webSpeechSupported: boolean | null;
+  whisperBackupReady: boolean | null;
+}) {
+  if (webSpeechSupported === null) return null;
+
+  if (webSpeechSupported === false) {
+    return (
+      <aside className="border border-ochre/40 bg-paper-deep/50 px-4 py-3 text-ink">
+        <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-ochre">No live captions</p>
+        <p className="mt-2 font-serif text-[0.92rem] leading-[1.6] text-ink-muted">
+          Browsers such as Firefox usually do not expose Web Speech here, so words will not appear as you
+          speak. We still record audio—when you stop, the server runs open-source Whisper (
+          <code className="text-[11px] text-ink">LOCAL_WHISPER=1</code>) or the Whisper API (
+          <code className="text-[11px] text-ink">OPENAI_API_KEY</code>). Otherwise use{" "}
+          <strong className="text-ink">type instead</strong>, or open this page in{" "}
+          <strong className="text-ink">Edge</strong> or <strong className="text-ink">Chrome</strong> for
+          live captions plus the same recording backup.
+        </p>
+      </aside>
+    );
+  }
+
+  if (whisperBackupReady === false) {
+    return (
+      <aside className="border border-rule bg-paper-deep/40 px-4 py-3 text-ink">
+        <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-ink-faint">Whisper backup off</p>
+        <p className="mt-2 font-serif text-[0.92rem] leading-[1.6] text-ink-muted">
+          Live captions may miss words. Enable <code className="text-[11px] text-ink">LOCAL_WHISPER=1</code>{" "}
+          (openai-whisper + ffmpeg on the server) or <code className="text-[11px] text-ink">OPENAI_API_KEY</code>{" "}
+          in <code className="text-[11px] text-ink">backend/.env</code>, restart the API, or use{" "}
+          <strong className="text-ink">type instead</strong>.
+        </p>
+      </aside>
+    );
+  }
+
+  return null;
 }
 
 function MicIcon() {

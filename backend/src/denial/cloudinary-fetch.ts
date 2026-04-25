@@ -76,10 +76,21 @@ export async function fetchCloudinaryAsset(opts: {
   if (res.ok) return Buffer.from(await res.arrayBuffer());
 
   if (res.status === 401 || res.status === 403) {
+    const hasUrl = Boolean(process.env.CLOUDINARY_URL?.trim());
+    const hasName = Boolean(process.env.CLOUDINARY_CLOUD_NAME?.trim());
+    const hasKey = Boolean(process.env.CLOUDINARY_API_KEY?.trim());
+    const hasSecret = Boolean(process.env.CLOUDINARY_API_SECRET?.trim());
+    let hint =
+      "Set CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME + CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET in backend/.env (same cloud as the browser). Restart the API after saving.";
+    if (hasName && hasSecret && !hasKey && !hasUrl) {
+      hint =
+        "CLOUDINARY_API_KEY is missing in backend/.env — paste the numeric API Key from Cloudinary → Programmable Media → Dashboard (above the API Secret). Restart the API.";
+    }
+    if (!hasCloudinaryCredentials()) {
+      hint += " Env is loaded from backend/.env on startup; if you just added vars, restart `npm run dev`.";
+    }
     throw new Error(
-      "Could not fetch asset (401). Your Cloudinary account is not serving this file anonymously. " +
-        "Fix: set CLOUDINARY_URL (or CLOUDINARY_CLOUD_NAME + CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET) on the API server " +
-        "so we can use a signed URL — use the same cloud as NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME.",
+      `Could not fetch asset (${res.status}). Anonymous delivery is blocked; signed fetch needs full Cloudinary credentials. ${hint}`,
     );
   }
 

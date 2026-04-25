@@ -1,3 +1,4 @@
+import "./load-env.js";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
@@ -5,7 +6,8 @@ import { cors } from "hono/cors";
 import type { DenialExtracted } from "./extraction/types.js";
 import { fetchCloudinaryAsset, hasCloudinaryCredentials } from "./denial/cloudinary-fetch.js";
 import { extractFromImageBuffer, extractFromPdfBuffer } from "./denial/parse-handler.js";
-import { transcribeAudioBuffer } from "./intake/transcribe.js";
+import { transcribeIntakeRecording } from "./intake/transcribe.js";
+import { localWhisperEnabled } from "./intake/whisper-local.js";
 
 const app = new Hono();
 
@@ -37,12 +39,15 @@ app.use(
 );
 
 const openaiKey = () => process.env.OPENAI_API_KEY?.trim() || undefined;
+const anthropicKey = () => process.env.ANTHROPIC_API_KEY?.trim() || undefined;
+const geminiKey = () =>
+  process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim() || undefined;
 
 app.get("/", (c) =>
   c.json({
     name: "unwritten-api",
     status: "ok",
-    note: "Denial parse + Whisper intake. Set OPENAI_API_KEY for best PDF/image + audio quality.",
+    note: "Denial parse: Anthropic → Gemini → OpenAI/heuristics. Voice: Web Speech + LOCAL_WHISPER (openai/whisper) and/or Whisper API; optional Claude polish.",
     cloudinaryHackathon:
       "https://cloudinary.com/pages/hackathons/ — client uploads to Cloudinary; this API parses the delivered asset URL.",
   }),
@@ -53,6 +58,12 @@ app.get("/health", (c) =>
     status: "ok",
     ts: new Date().toISOString(),
     openai: Boolean(openaiKey()),
+    gemini: Boolean(geminiKey()),
+    anthropicConfigured: Boolean(anthropicKey()),
+    intakeWhisper: Boolean(openaiKey()) || localWhisperEnabled(),
+    intakeWhisperOpenai: Boolean(openaiKey()),
+    intakeWhisperLocal: localWhisperEnabled(),
+    intakeClaudePolish: Boolean(anthropicKey()),
     cloudinarySignedFetch: hasCloudinaryCredentials(),
   }),
 );
@@ -158,13 +169,14 @@ app.route("/v1/denial", denial);
 
 const intake = new Hono();
 intake.post("/transcribe", async (c) => {
-  const key = openaiKey();
-  if (!key) {
+  const okey = openaiKey();
+  if (!okey && !localWhisperEnabled()) {
     return c.json(
       {
         ok: false,
-        error: "OPENAI_API_KEY is not set on the API server.",
-        hint: "Use browser speech recognition, or set the key for Whisper.",
+        error: "No intake transcription backend is configured.",
+        hint:
+          "Set LOCAL_WHISPER=1 with ffmpeg + pip install openai-whisper on the server (https://github.com/openai/whisper), and/or OPENAI_API_KEY for the Whisper API. Optional: ANTHROPIC_API_KEY polishes text. Or use Web Speech / type below.",
       },
       501,
     );
@@ -185,7 +197,11 @@ intake.post("/transcribe", async (c) => {
   const name = audio.name || "recording.webm";
 
   try {
-    const text = await transcribeAudioBuffer(key, buf, name);
+    const text = await transcribeIntakeRecording(
+      { openaiKey: okey, anthropicKey: anthropicKey() },
+      buf,
+      name,
+    );
     return c.json({ ok: true, text });
   } catch (e) {
     return c.json(
