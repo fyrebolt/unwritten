@@ -6,7 +6,7 @@ import { editorialEase } from "@/lib/motion";
 const productLinks = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Pricing", href: "#pricing" },
-  { label: "Begin an appeal", href: "#intake" },
+  { label: "Begin an appeal", href: "/signup" },
 ];
 
 const companyLinks = [

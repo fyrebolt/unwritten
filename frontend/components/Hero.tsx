@@ -100,7 +100,7 @@ export function Hero() {
             variants={fadeUp}
             className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-4"
           >
-            <CTA href="#intake">Begin your appeal</CTA>
+            <CTA href="/signup">Begin your appeal</CTA>
             <a
               href="#how-it-works"
               className="group inline-flex items-center gap-2 font-sans text-sm text-ink-muted transition-colors duration-200 ease-editorial hover:text-ink"

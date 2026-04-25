@@ -38,18 +38,26 @@ export function TopNav() {
           <NavLink href="#">Manifesto</NavLink>
         </nav>
 
-        <a
-          href="#intake"
-          className="group relative inline-flex items-center gap-2 border border-ink/20 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.18em] text-ink transition-colors duration-300 ease-editorial hover:border-ochre hover:text-ochre"
-        >
-          Begin
-          <span
-            aria-hidden="true"
-            className="transition-transform duration-300 ease-editorial group-hover:translate-x-0.5"
+        <div className="flex items-center gap-2">
+          <a
+            href="/signin"
+            className="hidden font-sans text-[11px] uppercase tracking-[0.18em] text-ink-muted transition-colors duration-200 ease-editorial hover:text-ochre md:inline"
           >
-            →
-          </span>
-        </a>
+            Sign in
+          </a>
+          <a
+            href="/signup"
+            className="group relative inline-flex items-center gap-2 border border-ink/20 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.18em] text-ink transition-colors duration-300 ease-editorial hover:border-ochre hover:text-ochre"
+          >
+            Begin
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-300 ease-editorial group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </a>
+        </div>
       </div>
     </motion.header>
   );
