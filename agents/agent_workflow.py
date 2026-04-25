@@ -89,7 +89,7 @@ def analyze_case(user_input: str = "", case_data: dict = None) -> dict:
     )
     payload = {"contents": [{"parts": [{"text": draft_prompt}]}]}
     try:
-        resp = requests.post(url, json=payload, timeout=15)
+        resp = requests.post(url, json=payload, timeout=(10, 90))
         result = resp.json()
         if "candidates" in result:
             letter = result["candidates"][0]["content"]["parts"][0]["text"]
