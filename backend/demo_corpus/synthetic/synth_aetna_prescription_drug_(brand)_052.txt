@@ -1,0 +1,54 @@
+AETNA
+P.O. Box 14079, Lexington, KY 40512-4079
+Customer Care: 1-800-872-3862
+
+September 18, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-456871    Group: GRP-46655
+Claim #: CLM-740116562    Auth #: AUTH-E1170307
+Provider: [Provider on File]    NPI: 1820581106
+Date of service: 08/16/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Dupixent 300mg subcutaneous injection
+Diagnosis: atopic dermatitis, severe (ICD-10 L20.9)
+Determination: DENIED — Diagnosis is not covered (CO-167)
+
+Dear Member,
+
+Aetna has completed clinical review of the service request below. This letter is your Notice of Adverse Benefit Determination.
+
+REASON FOR DENIAL
+The diagnosis you submitted with this request is not on the list of covered indications for this service. Our policy lists specific diagnostic conditions for which this service is approved, and the submitted diagnosis is not among them.
+
+The specific service under review is Dupixent 300mg subcutaneous injection, billed for the diagnosis of atopic dermatitis, severe (ICD-10 L20.9).
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Prescription drug (brand). You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (March 17, 2025). Send your appeal to:
+
+Aetna — National Appeals Unit
+P.O. Box 14463
+Lexington, KY 40512
+Fax: 1-959-282-2335
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please contact Aetna Member Services using the number on your member ID card.
+
+Sincerely,
+
+Aetna Clinical Coverage Review
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

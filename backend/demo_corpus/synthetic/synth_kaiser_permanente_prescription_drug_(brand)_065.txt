@@ -1,0 +1,54 @@
+KAISER PERMANENTE
+393 East Walnut Street, Pasadena, CA 91188
+Customer Care: 1-800-464-4000
+
+December 08, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-765620    Group: GRP-74451
+Claim #: CLM-197970787    Auth #: AUTH-H6837817
+Provider: [Provider on File]    NPI: 7048809022
+Date of service: 11/25/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Eliquis 5mg twice daily
+Diagnosis: atrial fibrillation, unspecified (ICD-10 I48.91)
+Determination: DENIED — Service not covered under plan (PR-204)
+
+Dear Member,
+
+This letter is to inform you of the outcome of your request for the service identified below. Kaiser Permanente has completed its review.
+
+REASON FOR DENIAL
+After careful review of your benefit plan, this service is not a covered benefit. Your Evidence of Coverage (EOC) lists categories of services that are excluded from coverage, and the requested service falls within one of those exclusions. We are therefore unable to authorize payment for this request.
+
+Your Evidence of Coverage excludes prescription drug (brand) from covered benefits except in narrowly defined circumstances. The documentation submitted does not demonstrate that an exception applies.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Prescription drug (brand). You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (June 06, 2025). Send your appeal to:
+
+Kaiser Permanente — Member Relations Department
+P.O. Box 23170
+Oakland, CA 94623
+Fax: 1-510-625-5599
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please call Member Services at the number listed on your Kaiser Permanente ID card.
+
+Sincerely,
+
+Member Relations — Kaiser Permanente
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

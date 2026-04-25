@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: EI25-45301
+Report Year: 2025
+Diagnosis Category: Cancer / Gastric/Stomach
+Treatment Category: Cancer Care / Cancer Rx
+IMR Type: Experimental/Investigational
+Patient: age 51 to 64, gender Female
+Days to review: 6     Days to adopt: 16
+Determination: Upheld Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for combination therapy treatment of Taxol (paclitaxel)/Cyramza (ramucirumab)/Opdivo (nivolumab). This patient has stage IV gastric cancer that has progressed beyond the standard first-line regimen. According to the National Comprehensive Cancer Network (NCCN) guidelines, the second-line regimen for such patients is paclitaxel and ramucirumab. This patient’s provider has added nivolumab to that regimen. Nivolumab is listed as an active agent in the NCCN guidelines, but its inclusion in the proposed combination is not supported, especially because the patient has had progressive disease while on it. For these reasons, the requested combination therapy treatment of Taxol (paclitaxel)/Cyramza (ramucirumab)/Opdivo (nivolumab) is not likely to be more beneficial for treatment of the patient’s condition than any available standard therapy.Findings: Three of the three reviewers found that the requested combination therapy is not likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy.Final Result: The reviewers determined that the requested combination therapy is not likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy. Therefore, the Health Plan's denial should be upheld.Credentials/Qualifications: Reviewer 1 is board-certified in internal medicine with subspecialty certifications in medical oncology and hematology and is actively practicing. Reviewer 2 is board-certified internal medicine with subspecialty certifications in medical oncology and hematology and is actively practicing. Reviewer 3 is board-certified in internal medicine with subspecialty certifications in medical oncology and hematology and is actively practicing. The reviewers are experts in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

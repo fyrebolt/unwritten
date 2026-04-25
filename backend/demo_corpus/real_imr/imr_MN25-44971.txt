@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-44971
+Report Year: 2025
+Diagnosis Category: Endocrine/Metabolic / High Cholesterol
+Treatment Category: Diag Imag & Screen / CT Scan
+IMR Type: Medical Necessity
+Patient: age 51 to 64, gender Male
+Days to review: 7     Days to adopt: 36
+Determination: Upheld Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for a computed tomography (CT) scan of the heart with calcium scoring. The patient has some cardiovascular risk factors but no documented cardiac symptoms or abnormal physical examination findings. Medical literature does not demonstrate improved clinical outcomes from routine cardiac CT screening beyond standard risk assessment and management. In this clinical setting, standard evaluation and risk factor management are appropriate. Therefore, the requested CT scan of the heart with calcium scoring is not medically necessary for the evaluation of this patient.Final Result: The reviewer determined that the service is not medically necessary for the evaluation of the patient's medical condition. Therefore, the Health Plan's denial should be upheld.Credentials/Qualifications: The reviewer is board-certified in internal medicine with subspecialty certifications in cardiovascular disease and in adult congenital heart disease and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

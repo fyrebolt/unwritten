@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: EI25-45361
+Report Year: 2025
+Diagnosis Category: Cardiac/Circ Problem / Cardiomyopathy
+Treatment Category: DME / Wearable Cardio Defib
+IMR Type: Experimental/Investigational
+Patient: age 41 to 50, gender Male
+Days to review: 11     Days to adopt: 65
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested reimbursement for a Zoll LifeVest wearable cardiac defibrillator. The documented high risk of sudden cardiac death in patients with severe left ventricular dysfunction has led to the recommendation of implantable cardioverter defibrillators (ICDs) in this group of patients. The use of the LifeVest has been advised after an initial diagnosis of severe left ventricular dysfunction with a left ventricular ejection fraction (LVEF) of less than or equal to 35% along with guideline-directed medical therapy (GDMT). The recommended timing of placement of a LifeVest, based on current medical guidelines, is within 40 days following an acute myocardial infarction or within 90 days of an initial diagnosis of congestive heart failure (CHF) with a severely reduced LVEF. The waiting period is to allow for possible recovery of ventricular function with medical therapy, which would obviate the need for an ICD. Overall, the American Heart Association (AHA), American College of Cardiology (ACC), and the Heart Rhythm Society (HRS) indicate that the utilization of an ICD is a reasonable recommendation in this clinical setting. Thus, the Zoll LifeVest wearable cardiac defibrillator was likely to be more beneficial for the treatment of this patient's condition than any available standard therapy.Findings: Two of the three reviewers found that the equipment was likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy.Final Result: The reviewers determined that the equipment was likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: Reviewer 1 is board-certified in internal medicine with subspecialty certifications in cardiovascular disease and adult congenital heart disease and is actively practicing. Reviewer 2 is board-certified in internal medicine with a subspecialty certification in cardiovascular disease and is actively practicing. Reviewer 3 is board-certified in internal medicine with a subspecialty certification in cardiovascular disease and clinical cardiac electrophysiology and is actively practicing. The reviewers are experts in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

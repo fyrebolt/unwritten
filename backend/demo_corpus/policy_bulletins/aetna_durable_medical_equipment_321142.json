@@ -1,0 +1,15 @@
+{
+  "id": "aetna_durable_medical_equipment_321142",
+  "source": "Insurer Medical Policy Bulletin",
+  "is_synthetic": false,
+  "is_denial_letter": false,
+  "doc_type": "medical_policy_bulletin",
+  "insurer": "Aetna",
+  "category": "Durable medical equipment",
+  "policy_title": "Obsolete and Unreliable Tests and Procedures \u2014 CPB 0438",
+  "policy_url": "https://www.aetna.com/cpb/medical/data/400_499/0438.html",
+  "content_type": "text/html",
+  "size_bytes": 75411,
+  "fetched_at": "2026-04-25T04:11:11.608411+00:00",
+  "title_corrected": true
+}

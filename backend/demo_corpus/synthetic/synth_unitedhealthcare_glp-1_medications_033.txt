@@ -1,0 +1,54 @@
+UNITEDHEALTHCARE
+P.O. Box 740800, Atlanta, GA 30374-0800
+Customer Care: 1-866-633-2446
+
+March 26, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-645175    Group: GRP-80575
+Claim #: CLM-837507241    Auth #: AUTH-L4305700
+Provider: [Provider on File]    NPI: 6859286614
+Date of service: 02/27/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Trulicity 1.5mg weekly injection
+Diagnosis: type 2 diabetes with comorbid hypertension (ICD-10 E11.65)
+Determination: DENIED — Benefit maximum reached (CO-119)
+
+Dear Member,
+
+We received a request for prior authorization on your behalf. UnitedHealthcare has finished its medical necessity review and we are writing to share the outcome.
+
+REASON FOR DENIAL
+Your plan has a benefit limit on this service category. According to our records, the maximum number of visits or units allowed within the current benefit period has been reached. Additional services beyond this limit are the member's financial responsibility.
+
+The specific service under review is Trulicity 1.5mg weekly injection, billed for the diagnosis of type 2 diabetes with comorbid hypertension (ICD-10 E11.65).
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering GLP-1 medications. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (September 22, 2024). Send your appeal to:
+
+UnitedHealthcare — Appeals
+P.O. Box 30432
+Salt Lake City, UT 84130
+Fax: 1-866-654-6323
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+We are committed to working with you. If you would like to discuss this decision, please call the number on the back of your health plan ID card.
+
+Sincerely,
+
+UnitedHealthcare Clinical Services
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

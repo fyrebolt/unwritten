@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45384
+Report Year: 2025
+Diagnosis Category: Immuno Disorders / Other
+Treatment Category: Pharmacy / Biologics
+IMR Type: Medical Necessity
+Patient: age 41 to 50, gender Male
+Days to review: 5     Days to adopt: 22
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for a dosage escalation of Xolair. In one study, after up-dosing omalizumab, 69% of patients improved response, with some achieving complete response. No adverse events were reported. In another study, authors confirmed the success of high-dose omalizumab treatment in a substantial number of patients with prior insufficient response on standard omalizumab dosing. Finally, in a third study, high-dose omalizumab showed a clinical benefit in 61% of patients with insufficient response to the standard dose of omalizumab. This patient with mast cell activation syndrome (MCAS) failed to be controlled despite treatment with high-dose antihistamines. Standard dosing of Xolair was started a few years ago with partial response. The patient’s Xolair dose was gradually increased to a higher dose. This higher dose has kept the patient controlled, as evidenced by a significant decrease in symptoms and a lack of hospitalizations. Overall, the patient has had a long history of success with the requested higher dosing of omalizumab. Therefore, the requested dosage escalation of Xolair is medically necessary for the treatment of this patient. Final Result: The reviewer determined that the requested treatment is medically necessary for the treatment of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in internal medicine with subspecialty certification in allergy and immunology and is actively practicing. The reviewer is an expert in the treatment of the patient’s medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

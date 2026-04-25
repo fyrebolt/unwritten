@@ -1,0 +1,54 @@
+UNITEDHEALTHCARE
+P.O. Box 740800, Atlanta, GA 30374-0800
+Customer Care: 1-866-633-2446
+
+September 15, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-890870    Group: GRP-14067
+Claim #: CLM-365518424    Auth #: AUTH-D1341919
+Provider: [Provider on File]    NPI: 3668616333
+Date of service: 08/31/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Pediatric PT, 2x weekly for 6 months
+Diagnosis: cerebral palsy, unspecified (ICD-10 G80.9)
+Determination: DENIED — Prior authorization not obtained (CO-197)
+
+Dear Member,
+
+We received a request for prior authorization on your behalf. UnitedHealthcare has finished its medical necessity review and we are writing to share the outcome.
+
+REASON FOR DENIAL
+Our records show that prior authorization was not obtained for this service before it was rendered. Your plan requires that prior authorization be approved by us before services of this type are provided. Without prior authorization on file, this claim is not eligible for benefits under your contract.
+
+For the date of service August 31, 2024, no prior authorization request for Pediatric PT, 2x weekly for 6 months was received in our system before the service was rendered.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Physical therapy. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (March 14, 2025). Send your appeal to:
+
+UnitedHealthcare — Appeals
+P.O. Box 30432
+Salt Lake City, UT 84130
+Fax: 1-866-654-6323
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+We are committed to working with you. If you would like to discuss this decision, please call the number on the back of your health plan ID card.
+
+Sincerely,
+
+UnitedHealthcare Clinical Services
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

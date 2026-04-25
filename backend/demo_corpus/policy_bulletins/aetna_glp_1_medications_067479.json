@@ -1,0 +1,14 @@
+{
+  "id": "aetna_glp_1_medications_067479",
+  "source": "Insurer Medical Policy Bulletin",
+  "is_synthetic": false,
+  "is_denial_letter": false,
+  "doc_type": "medical_policy_bulletin",
+  "insurer": "Aetna",
+  "category": "GLP-1 medications",
+  "policy_title": "Weight Reduction Medications \u2014 Clinical Policy Bulletin 0039",
+  "policy_url": "https://www.aetna.com/cpb/medical/data/1_99/0039.html",
+  "content_type": "text/html",
+  "size_bytes": 147029,
+  "fetched_at": "2026-04-25T04:08:41.616632+00:00"
+}

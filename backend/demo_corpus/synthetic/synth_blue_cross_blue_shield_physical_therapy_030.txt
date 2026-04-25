@@ -1,0 +1,54 @@
+BLUE CROSS BLUE SHIELD
+P.O. Box 660044, Dallas, TX 75266-0044
+Customer Care: 1-800-521-2227
+
+November 22, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-501124    Group: GRP-15075
+Claim #: CLM-605399561    Auth #: AUTH-D4348276
+Provider: [Provider on File]    NPI: 7271954644
+Date of service: 11/01/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Vestibular rehabilitation, 12 sessions
+Diagnosis: benign paroxysmal positional vertigo (ICD-10 H81.10)
+Determination: DENIED — Service not covered under plan (PR-204)
+
+Dear Member,
+
+Blue Cross Blue Shield has completed review of the service request listed below. This letter explains the outcome and your appeal rights.
+
+REASON FOR DENIAL
+After careful review of your benefit plan, this service is not a covered benefit. Your Evidence of Coverage (EOC) lists categories of services that are excluded from coverage, and the requested service falls within one of those exclusions. We are therefore unable to authorize payment for this request.
+
+Your Evidence of Coverage excludes physical therapy from covered benefits except in narrowly defined circumstances. The documentation submitted does not demonstrate that an exception applies.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Physical therapy. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (May 21, 2025). Send your appeal to:
+
+Blue Cross Blue Shield — Member Appeals
+P.O. Box 660717
+Dallas, TX 75266-0717
+Fax: 1-855-235-1055
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions about this letter or your benefits, please call the Member Services number on your ID card.
+
+Sincerely,
+
+Member Appeals — Blue Cross Blue Shield
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

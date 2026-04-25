@@ -1,0 +1,14 @@
+{
+  "id": "aetna_surgery_752860",
+  "source": "Insurer Medical Policy Bulletin",
+  "is_synthetic": false,
+  "is_denial_letter": false,
+  "doc_type": "medical_policy_bulletin",
+  "insurer": "Aetna",
+  "category": "Surgery",
+  "policy_title": "Bariatric Surgery \u2014 CPB 0157",
+  "policy_url": "https://www.aetna.com/cpb/medical/data/100_199/0157.html",
+  "content_type": "text/html",
+  "size_bytes": 594339,
+  "fetched_at": "2026-04-25T04:10:22.184401+00:00"
+}

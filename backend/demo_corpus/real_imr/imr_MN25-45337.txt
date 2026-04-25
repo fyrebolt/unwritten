@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45337
+Report Year: 2025
+Diagnosis Category: Cancer / Skin
+Treatment Category: Diag Imag & Screen / Genetic/Genomic Test
+IMR Type: Medical Necessity
+Patient: age 31 to 40, gender Male
+Days to review: 20     Days to adopt: 63
+Determination: Upheld Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested reimbursement for a genetic assay. For a melanocytic lesion of uncertain malignant potential, current standard of care generally involves wide excision of the lesional site with appropriate margins followed by routine dermatologic surveillance. The most recent leading expert guidelines state current gene expression profiling (GEP) platforms do not provide clinically actionable prognostic information when compared with known clinicopathologic factors. The impact of these tests on treatment recommendations has not been established. According to the leading expert guidelines, prospective validation studies are necessary to more accurately define the clinical utility of GEP testing as part of the multidisciplinary decision-making process. Expert consensus statements state that more evidence is needed to support using GEP testing to inform recommendations about treatment and recommend avoiding the routine use of GEP testing to direct patient management. In addition, a meta-analysis of GEP tests reported that the prognostic ability of GEP testing with stage I disease was poor, concluding that GEP profiling had limited potential for clinical utility. According to the literature, the melanoma testing at issue was unlikely to have added any significant benefit above the usual clinical standard of care, which would have been re-excision with appropriate margins. All told, the genetic assay was not medically necessary for the treatment of this patient. Final Result: The reviewer determined that the requested testing was not medically necessary for the evaluation of the patient's medical condition. Therefore, the Health Plan's denial should be upheld.Credentials/Qualifications: The reviewer is board-certified in dermatology and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

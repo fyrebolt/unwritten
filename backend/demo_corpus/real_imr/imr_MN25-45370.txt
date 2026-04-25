@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45370
+Report Year: 2025
+Diagnosis Category: Endocrine/Metabolic / Obesity
+Treatment Category: Pharmacy / Weight Control
+IMR Type: Medical Necessity
+Patient: age 65+, gender Female
+Days to review: 21     Days to adopt: 55
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for Wegovy. Pharmacotherapy is recommended for weight loss for patients with a body mass index (BMI) greater than 30 kg/m2, or a BMI greater than 27 kg/m2 with adiposity-related complications, in conjunction with medical nutrition therapy, physical activity, and psychological interventions. Studies have shown that use of semaglutide (Wegovy) is an effective pharmacotherapy for weight loss as compared to placebo. This patient has a recent BMI of 46.19 kg/m2, as well as several comorbidities. This patient is a candidate for weight loss pharmacotherapy along with lifestyle modifications. All told, the requested Wegovy is medically necessary for the treatment of this patient. Final Result: The reviewer determined that the requested medication is medically necessary for the treatment of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in endocrinology, diabetes, and metabolism and is actively practicing. The reviewer is an expert in the treatment of the patient’s medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.
