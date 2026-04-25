@@ -1,3 +1,7 @@
+/**
+ * Denial letter / image → structured fields for the hackathon parse flow.
+ * Tries Anthropic (PDF native + vision) first, then Gemini, then OpenAI / heuristics / PDF text extraction.
+ */
 import type { DenialExtracted } from "../extraction/types.js";
 import { anthropicExtractFromImageBase64, anthropicExtractFromPdf } from "./anthropic-extract.js";
 import { heuristicsFromDenialText } from "./heuristics.js";

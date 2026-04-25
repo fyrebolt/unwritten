@@ -1,5 +1,16 @@
 "use client";
 
+/**
+ * Step 02 — spoken “what happened?” with a typed fallback.
+ *
+ * What this does:
+ * - Uses Web Speech API when the browser exposes it (Chromium); rebuilds transcript from all `results`
+ *   each `onresult` (fixes broken incremental concatenation).
+ * - Always records audio with MediaRecorder for server backup if live text is empty.
+ * - Probes `/health` for `intakeWhisper` before calling the API; blocks start if neither Web Speech nor
+ *   server Whisper is available (Firefox + no keys).
+ * - Shows hints when live captions are missing or Whisper backup is off.
+ */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eyebrow } from "@/components/ui/Eyebrow";

@@ -1,13 +1,20 @@
+/**
+ * Local STT using OpenAI’s open-source Whisper (Python), not the hosted Whisper API.
+ *
+ * What this does:
+ * - Writes the uploaded blob to a temp dir, converts to 16 kHz mono WAV with ffmpeg (unless already WAV).
+ * - Runs `python3 -m whisper …` or `WHISPER_CLI` with `--output_format txt`, then reads the `.txt` file.
+ * - Uses `spawn` with stdio ignored so tqdm/progress on stderr cannot blow Node’s exec maxBuffer.
+ *
+ * Env: LOCAL_WHISPER=1 to enable (checked in transcribe.ts). Optional: WHISPER_MODEL (default tiny),
+ * WHISPER_LANGUAGE, WHISPER_PYTHON, WHISPER_CLI, WHISPER_TIMEOUT_MS.
+ * @see https://github.com/openai/whisper
+ */
 import { randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-
-/**
- * Open-source Whisper on the API host (same project as https://github.com/openai/whisper).
- * Requires `ffmpeg` on PATH and `pip install -U openai-whisper` (or `WHISPER_CLI` to the `whisper` executable).
- */
 
 export function localWhisperEnabled(): boolean {
   return process.env.LOCAL_WHISPER?.trim() === "1";
@@ -24,6 +31,7 @@ function inferExt(filename: string): string {
   return "webm";
 }
 
+/** Runs a subprocess without inheriting stdout/stderr (avoids huge stderr from Whisper progress bars). */
 function runSpawn(
   command: string,
   args: string[],

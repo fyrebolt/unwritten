@@ -167,6 +167,11 @@ denial.post("/parse-file", async (c) => {
 
 app.route("/v1/denial", denial);
 
+/**
+ * Intake routes — “tell us what happened” voice backup from the case wizard.
+ * POST /transcribe accepts multipart field `audio` (e.g. WebM from MediaRecorder).
+ * Needs LOCAL_WHISPER=1 and/or OPENAI_API_KEY; see `src/intake/transcribe.ts`.
+ */
 const intake = new Hono();
 intake.post("/transcribe", async (c) => {
   const okey = openaiKey();

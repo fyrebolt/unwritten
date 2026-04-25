@@ -1,3 +1,7 @@
+/**
+ * Sends the recorded blob to `/v1/intake/transcribe` (proxied as `/__unwritten_api` in the browser).
+ * Used when Web Speech did not produce enough text; server runs Whisper (local or OpenAI API).
+ */
 import { getApiBase } from "@/lib/api";
 
 export async function transcribeRecording(blob: Blob): Promise<string> {

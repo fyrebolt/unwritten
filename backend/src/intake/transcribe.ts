@@ -1,6 +1,13 @@
 /**
- * Intake voice backup: open-source Whisper on the server (optional) or OpenAI Whisper API (`whisper-1`),
- * then optional Claude polish. Browser path: Web Speech; see VoiceStage.
+ * Intake “what happened?” voice → text (Step 02 backup when Web Speech is empty or unavailable).
+ *
+ * What this does:
+ * - Prefers LOCAL_WHISPER=1: run open-source Whisper on the API machine (ffmpeg + pip `openai-whisper`).
+ * - Else uses OpenAI `whisper-1` HTTP API when OPENAI_API_KEY is set.
+ * - If Anthropic is configured, optionally polishes the STT string; polish errors fall back to raw STT
+ *   so a bad Claude call does not lose a good transcript.
+ *
+ * Primary UX is still the browser Web Speech API + typing; see `VoiceStage.tsx`.
  * @see https://github.com/openai/whisper
  */
 
