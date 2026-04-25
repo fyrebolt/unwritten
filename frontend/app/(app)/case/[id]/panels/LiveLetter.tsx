@@ -19,10 +19,10 @@ export function LiveLetter({
   letterProgress: number;
   done: boolean;
 }) {
-  const totalCharTarget = Math.max(0, Math.floor(letterProgress * CHARS_PER_SEC));
+  const dynamicCharTarget = Math.max(0, Math.floor(letterProgress * CHARS_PER_SEC));
   const started = elapsed >= startAt;
 
-  const { paragraphs, globalCitationIndex } = useMemo(() => {
+  const { paragraphs, globalCitationIndex, totalLetterChars } = useMemo(() => {
     let used = 0;
     let cites = 0;
     const result = appealLetter.paragraphs.map((p) => {
@@ -36,8 +36,9 @@ export function LiveLetter({
     for (const p of result) {
       for (const s of p.sentences) cites += s.citations.length;
     }
-    return { paragraphs: result, globalCitationIndex: cites };
+    return { paragraphs: result, globalCitationIndex: cites, totalLetterChars: used };
   }, []);
+  const totalCharTarget = done ? totalLetterChars : dynamicCharTarget;
 
   return (
     <div className="flex h-full flex-col gap-6">
