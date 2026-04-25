@@ -1,0 +1,54 @@
+CIGNA
+900 Cottage Grove Road, Hartford, CT 06152
+Customer Care: 1-800-244-6224
+
+April 06, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-822131    Group: GRP-49857
+Claim #: CLM-851333320    Auth #: AUTH-G5567533
+Provider: [Provider on File]    NPI: 7415801613
+Date of service: 02/21/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Total hip arthroplasty, right
+Diagnosis: primary osteoarthritis of right hip (ICD-10 M16.11)
+Determination: DENIED — Prior authorization not obtained (CO-197)
+
+Dear Member,
+
+We have completed our coverage review for the service identified below. The purpose of this letter is to inform you of Cigna's determination and your right to appeal.
+
+REASON FOR DENIAL
+Our records show that prior authorization was not obtained for this service before it was rendered. Your plan requires that prior authorization be approved by us before services of this type are provided. Without prior authorization on file, this claim is not eligible for benefits under your contract.
+
+For the date of service February 21, 2024, no prior authorization request for Total hip arthroplasty, right was received in our system before the service was rendered.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Surgery. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (October 03, 2024). Send your appeal to:
+
+Cigna — National Appeals Organization
+P.O. Box 188011
+Chattanooga, TN 37422-8011
+Fax: 1-855-840-1678
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please call Cigna Customer Service at the number on your ID card.
+
+Sincerely,
+
+Cigna Coverage Review Department
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45294
+Report Year: 2025
+Diagnosis Category: Cancer / Breast
+Treatment Category: Diag Imag & Screen / MRI
+IMR Type: Medical Necessity
+Patient: age 41 to 50, gender Female
+Days to review: 23     Days to adopt: 62
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for bilateral magnetic resonance imaging (MRI) of the breasts with/without contrast. According to the American College of Radiology (ACR) appropriateness criteria for breast cancer screening based on breast density, in the setting of extremely dense breast tissue in a high-risk patient, as is the case with this patient, contrast enhanced breast MRI is considered usually appropriate. The ACR notes that the American Cancer Society and National Comprehensive Cancer Network guidelines also support this recommendation. As such, the use of bilateral breast MRI as a screening tool is indicated for this patient. Therefore, the requested bilateral MRI of the breasts with/without contrast is medically necessary for the evaluation of this patient.Final Result: The reviewer determined that the requested service is medically necessary for the evaluation of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in diagnostic radiology and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

@@ -1,0 +1,54 @@
+ANTHEM BLUE CROSS
+P.O. Box 60007, Los Angeles, CA 90060-0007
+Customer Care: 1-800-407-4627
+
+August 18, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-791798    Group: GRP-72296
+Claim #: CLM-690347116    Auth #: AUTH-C5446912
+Provider: [Provider on File]    NPI: 7900268326
+Date of service: 07/08/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Humira 40mg auto-injector pen, biweekly
+Diagnosis: rheumatoid arthritis, unspecified (ICD-10 M06.9)
+Determination: DENIED — Service not covered under plan (PR-204)
+
+Dear Member,
+
+Thank you for choosing Anthem Blue Cross. We have completed our review of the request submitted on your behalf and write to inform you of our determination.
+
+REASON FOR DENIAL
+After careful review of your benefit plan, this service is not a covered benefit. Your Evidence of Coverage (EOC) lists categories of services that are excluded from coverage, and the requested service falls within one of those exclusions. We are therefore unable to authorize payment for this request.
+
+Your Evidence of Coverage excludes prescription drug (brand) from covered benefits except in narrowly defined circumstances. The documentation submitted does not demonstrate that an exception applies.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Prescription drug (brand). You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (February 14, 2025). Send your appeal to:
+
+Anthem Blue Cross — Grievance and Appeals
+P.O. Box 4310
+Woodland Hills, CA 91365-4310
+Fax: 1-855-661-1828
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have questions about this notice, please call the Customer Care number on the back of your member ID card.
+
+Sincerely,
+
+Member Services — Anthem Blue Cross
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

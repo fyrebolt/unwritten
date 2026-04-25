@@ -1,0 +1,54 @@
+CIGNA
+900 Cottage Grove Road, Hartford, CT 06152
+Customer Care: 1-800-244-6224
+
+October 19, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-413921    Group: GRP-96951
+Claim #: CLM-211225158    Auth #: AUTH-C5437001
+Provider: [Provider on File]    NPI: 3376077463
+Date of service: 09/24/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: Spinal fusion L4-L5
+Diagnosis: degeneration of lumbar disc (ICD-10 M51.36)
+Determination: DENIED — Not medically necessary (CO-50)
+
+Dear Member,
+
+We have completed our coverage review for the service identified below. The purpose of this letter is to inform you of Cigna's determination and your right to appeal.
+
+REASON FOR DENIAL
+Based on the clinical information submitted, we have determined that the requested service does not meet our criteria for medical necessity. Our clinical reviewers compared the request against our published Medical Policy and the documentation provided does not establish that this service is required to evaluate, diagnose, or treat your condition.
+
+Specifically, the documentation submitted does not establish that Spinal fusion L4-L5 is required for the diagnosis of degeneration of lumbar disc (ICD-10 M51.36) under our published Medical Policy. Conservative measures and lower-cost alternatives have not been sufficiently documented as having been tried and failed.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Surgery. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (April 17, 2025). Send your appeal to:
+
+Cigna — National Appeals Organization
+P.O. Box 188011
+Chattanooga, TN 37422-8011
+Fax: 1-855-840-1678
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please call Cigna Customer Service at the number on your ID card.
+
+Sincerely,
+
+Cigna Coverage Review Department
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.
