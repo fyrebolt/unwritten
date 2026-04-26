@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import { useDropzone, type FileRejection } from "react-dropzone";
 import { AnimatePresence, motion } from "framer-motion";
+import { useUser } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { isClientUploadConfigured } from "@/lib/cloudinary/config";
@@ -24,6 +25,7 @@ export function UploadStage({
   const [progress, setProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const cloudinaryReady = isClientUploadConfigured();
+  const { user } = useUser();
 
   const runPipeline = useCallback(
     async (file: File, asset?: DenialAsset) => {
@@ -59,7 +61,8 @@ export function UploadStage({
         if (cloudinaryReady) {
           setPhase("uploading");
           setProgress(0);
-          const asset = await uploadUnsignedWithProgress(file, setProgress);
+          const folder = user?.id ? `users/${user.id}/denials` : undefined;
+          const asset = await uploadUnsignedWithProgress(file, setProgress, { folder });
           await runPipeline(file, asset);
         } else {
           await runPipeline(file);
@@ -69,7 +72,7 @@ export function UploadStage({
         setErrorMessage(e instanceof Error ? e.message : "Upload failed.");
       }
     },
-    [cloudinaryReady, runPipeline],
+    [cloudinaryReady, runPipeline, user?.id],
   );
 
   const onDrop = useCallback(

@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { UploadStage } from "./stages/UploadStage";
 import { VoiceStage } from "./stages/VoiceStage";
 import { ConfirmStage } from "./stages/ConfirmStage";
 import { StageProgress } from "./stages/StageProgress";
 import type { DenialAsset } from "@/lib/cloudinary/types";
 import type { IntakeUploadPayload } from "@/lib/intake/types";
+import { createCase } from "@/lib/cases/client";
 
 export type Stage = "upload" | "voice" | "confirm";
 
@@ -42,6 +44,7 @@ export function NewCaseClient() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("upload");
   const [draft, setDraft] = useState<IntakeDraft>(emptyDraft);
+  const [submitting, setSubmitting] = useState(false);
 
   const advance = (next: Stage) => setStage(next);
 
@@ -61,8 +64,23 @@ export function NewCaseClient() {
     advance("confirm");
   };
 
-  const handleConfirm = () => {
-    router.push("/case/case_847221b");
+  const handleConfirm = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const created = await createCase({
+        fileName: draft.fileName,
+        asset: draft.denialAsset,
+        extracted: draft.extracted,
+        parseNote: draft.parseNote,
+        transcript: draft.transcript,
+      });
+      router.push(`/case/${created.id}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not save the case.";
+      toast.error("Couldn't save case", { description: msg });
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -107,6 +125,7 @@ export function NewCaseClient() {
                 }
                 onBack={() => advance("voice")}
                 onConfirm={handleConfirm}
+                submitting={submitting}
               />
             </motion.div>
           )}

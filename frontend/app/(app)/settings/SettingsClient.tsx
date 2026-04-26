@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
+import { useUser } from "@clerk/nextjs";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { defaultUser, getUser, setUser, type MockUser } from "@/lib/mock/user";
 import { SliderRow, SwitchRow, RadioRow } from "@/app/(app)/case/[id]/panels/ConfigControls";
 import { defaultAgentConfig, type AgentConfig } from "@/lib/mock/agents";
 
@@ -19,15 +19,10 @@ const SECTIONS = [
 ] as const;
 
 export function SettingsClient() {
-  const [user, setUserState] = useState<MockUser>(defaultUser);
-  const [email, setEmail] = useState<string>(defaultUser.email);
+  const { user } = useUser();
+  const displayName = user?.fullName ?? user?.firstName ?? user?.username ?? "Member";
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
   const [config, setConfig] = useState<AgentConfig>(defaultAgentConfig);
-
-  useEffect(() => {
-    const u = getUser() ?? defaultUser;
-    setUserState(u);
-    setEmail(u.email);
-  }, []);
 
   const updateConfig = <K extends keyof AgentConfig>(
     section: K,
@@ -35,9 +30,9 @@ export function SettingsClient() {
   ) => setConfig((c) => ({ ...c, [section]: { ...c[section], ...patch } }));
 
   const saveProfile = () => {
-    const u = setUser(email);
-    setUserState(u);
-    toast.success("Profile saved");
+    toast.success("Profile sync handled by Clerk", {
+      description: "Email + display name come from your Clerk account.",
+    });
   };
 
   return (
@@ -68,18 +63,26 @@ export function SettingsClient() {
           </h2>
           <div className="mt-10 flex flex-col gap-8">
             <Field label="Display name">
-              <Input sizeVariant="md" defaultValue={user.name} />
+              <Input sizeVariant="md" value={displayName} readOnly />
             </Field>
             <Field label="Email">
-              <Input
-                sizeVariant="md"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <Input sizeVariant="md" value={email} readOnly />
             </Field>
             <Field label="Clinic / organization">
               <Input sizeVariant="md" defaultValue="West Oak Endocrinology" />
             </Field>
+            <p className="font-sans text-[11px] text-ink-muted">
+              Identity is managed by Clerk — change your name or email at{" "}
+              <a
+                href="https://accounts.clerk.com"
+                target="_blank"
+                rel="noreferrer"
+                className="text-ochre underline-offset-4 hover:underline"
+              >
+                Clerk account
+              </a>
+              .
+            </p>
             <div className="flex justify-end pt-4">
               <Button variant="primary" size="sm" onClick={saveProfile}>
                 Save profile

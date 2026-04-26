@@ -4,8 +4,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useRouter } from "next/navigation";
 import { Command } from "cmdk";
 import { AnimatePresence, motion } from "framer-motion";
+import { useClerk } from "@clerk/nextjs";
 import { mockCases } from "@/lib/mock/cases";
-import { clearUser } from "@/lib/mock/user";
 
 type Ctx = { open: () => void; close: () => void; isOpen: boolean };
 const CommandPaletteContext = createContext<Ctx | null>(null);
@@ -19,6 +19,7 @@ export function useCommandPalette(): Ctx {
 export function CommandPaletteProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { signOut } = useClerk();
 
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
@@ -116,8 +117,7 @@ export function CommandPaletteProvider({ children }: { children: React.ReactNode
                       value="sign out logout"
                       onSelect={() => {
                         close();
-                        clearUser();
-                        router.push("/signin");
+                        void signOut({ redirectUrl: "/signin" });
                       }}
                       label="Sign out"
                     />

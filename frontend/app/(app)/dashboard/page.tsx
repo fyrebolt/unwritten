@@ -1,11 +1,7 @@
 import { DashboardClient } from "./DashboardClient";
-import { getActiveCases, getCompletedCases } from "@/lib/mock/cases";
+
+export const dynamic = "force-dynamic";
 
 export default function DashboardPage() {
-  return (
-    <DashboardClient
-      active={getActiveCases()}
-      completed={getCompletedCases()}
-    />
-  );
+  return <DashboardClient />;
 }

@@ -14,6 +14,7 @@ function resourceKind(file: File): "raw" | "image" {
 export function uploadUnsignedWithProgress(
   file: File,
   onProgress: (pct: number) => void,
+  options?: { folder?: string },
 ): Promise<DenialAsset> {
   if (!isClientUploadConfigured()) {
     return Promise.reject(new Error("Cloudinary client upload is not configured."));
@@ -26,7 +27,9 @@ export function uploadUnsignedWithProgress(
   const form = new FormData();
   form.append("file", file);
   form.append("upload_preset", preset);
-  const folder = getUploadFolderOrNull();
+  // Per-user folder takes precedence over the env default, so each Clerk user's
+  // assets land under `users/<id>/denials/...` inside the chosen Cloudinary preset.
+  const folder = options?.folder ?? getUploadFolderOrNull();
   if (folder) form.append("folder", folder);
 
   return new Promise((resolve, reject) => {

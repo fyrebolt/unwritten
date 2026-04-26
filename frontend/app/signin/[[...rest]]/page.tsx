@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import { SignIn } from "@clerk/nextjs";
 import { AuthShell } from "@/components/auth/AuthShell";
-import { AuthForm } from "@/components/auth/AuthForm";
 
 export const metadata: Metadata = {
   title: "Sign in — Unwritten",
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function SignInPage() {
   return (
     <AuthShell mode="signin">
-      <AuthForm mode="signin" />
+      <SignIn signUpUrl="/signup" forceRedirectUrl="/dashboard" />
     </AuthShell>
   );
 }

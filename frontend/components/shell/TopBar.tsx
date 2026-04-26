@@ -3,22 +3,21 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { clearUser, defaultUser, getUser, type MockUser } from "@/lib/mock/user";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { getCase } from "@/lib/mock/cases";
 import { useCommandPalette } from "./CommandPaletteProvider";
 
 export function TopBar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [user, setUserState] = useState<MockUser>(defaultUser);
   const { open: openPalette } = useCommandPalette();
+  const { user, isLoaded } = useUser();
+  const { signOut } = useClerk();
 
-  useEffect(() => {
-    const u = getUser();
-    if (u) setUserState(u);
-  }, [pathname]);
+  const displayName = user?.fullName ?? user?.firstName ?? user?.username ?? "Member";
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const initials = computeInitials(displayName, email);
 
   const crumbs = buildCrumbs(pathname);
 
@@ -36,7 +35,7 @@ export function TopBar() {
           {crumbs.length > 0 && (
             <ol className="flex items-center gap-2 font-sans text-[12px] text-ink-muted">
               {crumbs.map((c, i) => (
-                <li key={c.href} className="flex items-center gap-2">
+                <li key={c.href ?? c.label} className="flex items-center gap-2">
                   {i > 0 && <span aria-hidden="true" className="text-ink-faint">/</span>}
                   {c.href && i < crumbs.length - 1 ? (
                     <Link
@@ -75,7 +74,7 @@ export function TopBar() {
                 aria-label="Account menu"
                 className="group flex h-8 w-8 items-center justify-center rounded-full border border-rule bg-paper-deep font-sans text-[11px] font-medium text-ink transition-colors duration-200 ease-editorial hover:border-ochre"
               >
-                {user.initials}
+                {isLoaded ? initials : "·"}
               </button>
             </DropdownMenu.Trigger>
             <AnimatePresence>
@@ -93,8 +92,10 @@ export function TopBar() {
                     transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   >
                     <div className="px-3 py-3 border-b border-rule">
-                      <p className="font-serif text-[15px] text-ink">{user.name}</p>
-                      <p className="mt-0.5 font-sans text-[11px] text-ink-muted">{user.email}</p>
+                      <p className="font-serif text-[15px] text-ink">{displayName}</p>
+                      {email && (
+                        <p className="mt-0.5 font-sans text-[11px] text-ink-muted">{email}</p>
+                      )}
                     </div>
                     <MenuItem onSelect={() => router.push("/settings")}>Settings</MenuItem>
                     <MenuItem onSelect={() => router.push("/settings#agent-config")}>
@@ -103,8 +104,7 @@ export function TopBar() {
                     <DropdownMenu.Separator className="my-1 h-px bg-rule" />
                     <MenuItem
                       onSelect={() => {
-                        clearUser();
-                        router.push("/signin");
+                        void signOut({ redirectUrl: "/signin" });
                       }}
                     >
                       Sign out
@@ -137,6 +137,14 @@ function MenuItem({
   );
 }
 
+function computeInitials(name: string, email: string): string {
+  const source = name.trim() || email.split("@")[0] || "Member";
+  const tokens = source.split(/[\s._-]+/).filter(Boolean);
+  if (tokens.length === 0) return "·";
+  if (tokens.length === 1) return tokens[0].slice(0, 2).toUpperCase();
+  return (tokens[0][0] + tokens[1][0]).toUpperCase();
+}
+
 type Crumb = { label: string; href?: string };
 
 function buildCrumbs(pathname: string): Crumb[] {
@@ -164,7 +172,9 @@ function buildCrumbs(pathname: string): Crumb[] {
             ? "Send"
             : leaf === "detail"
               ? "Detail"
-              : leaf;
+              : leaf === "live"
+                ? "Live agents"
+                : leaf;
       crumbs.push({ label: leafLabel });
     } else {
       crumbs.push({ label: title });

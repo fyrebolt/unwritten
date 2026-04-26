@@ -23,11 +23,13 @@ export function ConfirmStage({
   onChange,
   onBack,
   onConfirm,
+  submitting,
 }: {
   draft: IntakeDraft;
   onChange: (next: Partial<IntakeDraft["extracted"]>) => void;
   onBack: () => void;
   onConfirm: () => void;
+  submitting?: boolean;
 }) {
   return (
     <div className="grid grid-cols-1 gap-14 md:grid-cols-[1fr_1.1fr] md:gap-20">
@@ -134,12 +136,18 @@ export function ConfirmStage({
           <button
             type="button"
             onClick={onBack}
-            className="font-sans text-[11px] uppercase tracking-[0.22em] text-ink-muted transition-colors duration-200 ease-editorial hover:text-ink"
+            disabled={submitting}
+            className="font-sans text-[11px] uppercase tracking-[0.22em] text-ink-muted transition-colors duration-200 ease-editorial hover:text-ink disabled:opacity-40"
           >
             ← Back
           </button>
-          <Button variant="primary" size="lg" onClick={onConfirm}>
-            Begin drafting
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={onConfirm}
+            disabled={submitting}
+          >
+            {submitting ? "Saving…" : "Begin drafting"}
           </Button>
         </div>
       </div>

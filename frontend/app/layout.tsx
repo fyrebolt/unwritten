@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Instrument_Serif } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
+import { ClerkProvider } from "@clerk/nextjs";
 import { LenisProvider } from "@/components/ui/LenisProvider";
 import { NoiseTexture } from "@/components/ui/NoiseTexture";
 import { ScrollRail } from "@/components/ui/ScrollRail";
+import { clerkAppearance } from "@/lib/auth/clerk-appearance";
 import "./globals.css";
 
 const serif = Instrument_Serif({
@@ -38,14 +40,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${serif.variable} ${GeistSans.variable}`}>
-      <body className="bg-paper text-ink antialiased">
-        <LenisProvider>
-          <NoiseTexture />
-          <ScrollRail />
-          {children}
-        </LenisProvider>
-      </body>
-    </html>
+    <ClerkProvider appearance={clerkAppearance}>
+      <html lang="en" className={`${serif.variable} ${GeistSans.variable}`}>
+        <body className="bg-paper text-ink antialiased">
+          <LenisProvider>
+            <NoiseTexture />
+            <ScrollRail />
+            {children}
+          </LenisProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

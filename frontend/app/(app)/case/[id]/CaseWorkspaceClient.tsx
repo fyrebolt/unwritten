@@ -3,11 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import type { MockCase } from "@/lib/mock/cases";
 import { workspaceScript } from "@/lib/mock/agents";
 import { agentFocusSchedule } from "@/lib/mock/denial";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import type { ClientCase } from "@/lib/cases/client";
 import { AgentFeed } from "./panels/AgentFeed";
 import { DenialViewer } from "./panels/DenialViewer";
 import { LiveLetter } from "./panels/LiveLetter";
@@ -15,11 +15,20 @@ import { AgentConfigDrawer } from "./panels/AgentConfigDrawer";
 
 const SIMULATION_SECONDS = 20;
 
-export function CaseWorkspaceClient({ caseItem }: { caseItem: MockCase }) {
+export function CaseWorkspaceClient({
+  caseId,
+  title,
+  seed,
+}: {
+  caseId: string;
+  title: string;
+  seed?: ClientCase;
+}) {
   const [elapsed, setElapsed] = useState(0);
   const [done, setDone] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
   const startRef = useRef<number | null>(null);
+  const isReal = Boolean(seed);
 
   useEffect(() => {
     let raf = 0;
@@ -71,9 +80,9 @@ export function CaseWorkspaceClient({ caseItem }: { caseItem: MockCase }) {
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
       <header className="flex items-center justify-between border-b border-rule px-6 py-5 md:px-10 lg:px-14">
         <div className="flex flex-col gap-1">
-          <Eyebrow>Case · {caseItem.id.replace("case_", "").toUpperCase()}</Eyebrow>
+          <Eyebrow>Case · {shortenCaseId(caseId)}</Eyebrow>
           <h1 className="font-serif text-[1.6rem] leading-[1.15] tracking-tight text-ink">
-            {caseItem.title}
+            {title}
           </h1>
         </div>
         <div className="flex items-center gap-3">
@@ -81,9 +90,14 @@ export function CaseWorkspaceClient({ caseItem }: { caseItem: MockCase }) {
           <Button variant="ghost" size="sm" onClick={() => setConfigOpen(true)}>
             Agent config
           </Button>
+          {isReal && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href={`/case/${caseId}/live`}>Live agents →</Link>
+            </Button>
+          )}
           <Button variant="primary" size="sm" asChild>
             <Link
-              href={done ? `/case/${caseItem.id}/review` : "#"}
+              href={done ? `/case/${caseId}/review` : "#"}
               aria-disabled={!done}
               onClick={(e) => !done && e.preventDefault()}
               className={done ? "" : "pointer-events-none opacity-40"}
@@ -123,6 +137,12 @@ export function CaseWorkspaceClient({ caseItem }: { caseItem: MockCase }) {
       />
     </div>
   );
+}
+
+function shortenCaseId(id: string) {
+  if (id.length <= 8) return id.toUpperCase();
+  if (id.startsWith("case_")) return id.replace("case_", "").toUpperCase();
+  return `${id.slice(0, 4)}…${id.slice(-4)}`.toUpperCase();
 }
 
 function StatusLozenge({ elapsed, done }: { elapsed: number; done: boolean }) {
