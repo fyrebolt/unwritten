@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-
-const { Schema, model, models } = mongoose;
+const { Schema, model } = mongoose;
 
 type MedicalProfile = {
   diagnoses: string[];
@@ -43,4 +42,4 @@ const userSchema = new Schema<UserDocument>(
   },
 );
 
-export const User = models.User || model<UserDocument>("User", userSchema);
+export const User = mongoose.models.User || model<UserDocument>("User", userSchema);

@@ -1,25 +1,12 @@
-import cgi
-import io
 import json
 import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse
 
-import pypdf
-
 try:
     from .agent_workflow import analyze_case
 except ImportError:
     from agent_workflow import analyze_case
-
-
-def _extract_pdf_text(pdf_bytes: bytes) -> str:
-    try:
-        reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
-        return "\n".join(page.extract_text() or "" for page in reader.pages).strip()
-    except Exception as exc:
-        return f"[PDF extraction failed: {exc}]"
-
 
 class MainAPIHandler(BaseHTTPRequestHandler):
     server_version = "UnwrittenAgentsAPI/1.0"
@@ -47,23 +34,14 @@ class MainAPIHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"ok": False, "error": "not-found"})
             return
 
-        content_type = self.headers.get("Content-Type", "")
+        try:
+            fields = self._read_json()
+        except ValueError as exc:
+            self._send_json(400, {"ok": False, "error": str(exc)})
+            return
 
-        if "multipart/form-data" in content_type:
-            fields, pdf_bytes = self._read_multipart()
-        else:
-            try:
-                fields = self._read_json()
-            except ValueError as exc:
-                self._send_json(400, {"ok": False, "error": str(exc)})
-                return
-            pdf_bytes = None
-
-        # Build the combined user_input from all three sources
+        # Build combined user_input from text sources.
         parts = []
-        pdf_text = _extract_pdf_text(pdf_bytes) if pdf_bytes else ""
-        if pdf_text:
-            parts.append(f"[Denial Letter]\n{pdf_text}")
         message = fields.get("message") or fields.get("input") or fields.get("user_input") or ""
         if message:
             parts.append(f"[User Message]\n{message}")
@@ -101,27 +79,6 @@ class MainAPIHandler(BaseHTTPRequestHandler):
 
     def log_message(self, format: str, *args) -> None:  # noqa: A003
         return
-
-    def _read_multipart(self) -> tuple:
-        """Returns (fields_dict, pdf_bytes_or_None)."""
-        environ = {
-            "REQUEST_METHOD": "POST",
-            "CONTENT_TYPE": self.headers.get("Content-Type", ""),
-            "CONTENT_LENGTH": self.headers.get("Content-Length", "0"),
-        }
-        form = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ=environ)
-
-        fields: dict = {}
-        pdf_bytes = None
-
-        for key in form.keys():
-            item = form[key]
-            if hasattr(item, "filename") and item.filename:
-                pdf_bytes = item.file.read()
-            else:
-                fields[key] = item.value
-
-        return fields, pdf_bytes
 
     def _read_json(self) -> dict:
         length_header = self.headers.get("Content-Length")

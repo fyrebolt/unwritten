@@ -7,6 +7,20 @@ import type { CaseDoc } from "./types";
 
 export type SerializedCase = ReturnType<typeof serializeCase>;
 
+function toIso(value: unknown): string | undefined {
+  if (!value) return undefined;
+  if (value instanceof Date) return value.toISOString();
+  if (typeof value === "string") {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
+  }
+  return undefined;
+}
+
+function toIsoRequired(value: unknown): string {
+  return toIso(value) ?? new Date(0).toISOString();
+}
+
 export function serializeCase(c: CaseDoc) {
   return {
     id: c._id?.toString() ?? "",
@@ -16,7 +30,7 @@ export function serializeCase(c: CaseDoc) {
     denialDocument: c.denialDocument
       ? {
           ...c.denialDocument,
-          uploadedAt: c.denialDocument.uploadedAt?.toISOString(),
+          uploadedAt: toIso(c.denialDocument.uploadedAt),
         }
       : undefined,
     patientNarrative: c.patientNarrative
@@ -25,7 +39,7 @@ export function serializeCase(c: CaseDoc) {
           extractedContext: c.patientNarrative.extractedContext,
           chatMessages: c.patientNarrative.chatMessages?.map((m) => ({
             ...m,
-            timestamp: m.timestamp.toISOString(),
+            timestamp: toIsoRequired(m.timestamp),
           })),
         }
       : undefined,
@@ -36,21 +50,21 @@ export function serializeCase(c: CaseDoc) {
           policyFinding: c.appeal.policyFinding,
           evidenceFinding: c.appeal.evidenceFinding,
           caseFacts: c.appeal.caseFacts,
-          generatedAt: c.appeal.generatedAt?.toISOString(),
+          generatedAt: toIso(c.appeal.generatedAt),
         }
       : undefined,
     delivery: c.delivery
       ? {
           ...c.delivery,
-          sentAt: c.delivery.sentAt?.toISOString(),
+          sentAt: toIso(c.delivery.sentAt),
         }
       : undefined,
     timeline: c.timeline?.map((t) => ({
       event: t.event,
       details: t.details,
-      timestamp: t.timestamp.toISOString(),
+      timestamp: toIsoRequired(t.timestamp),
     })),
-    createdAt: c.createdAt.toISOString(),
-    updatedAt: c.updatedAt.toISOString(),
+    createdAt: toIsoRequired(c.createdAt),
+    updatedAt: toIsoRequired(c.updatedAt),
   };
 }

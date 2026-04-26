@@ -1,7 +1,5 @@
 import mongoose from "mongoose";
-
-const { Schema, model, models } = mongoose;
-import type { Types } from "mongoose";
+const { Schema, model, Types } = mongoose;
 
 const CASE_STATUSES = [
   "DRAFTING",
@@ -188,4 +186,4 @@ const caseSchema = new Schema<CaseDocument>(
 
 caseSchema.index({ userId: 1, updatedAt: -1 });
 
-export const Case = models.Case || model<CaseDocument>("Case", caseSchema);
+export const Case = mongoose.models.Case || model<CaseDocument>("Case", caseSchema);
