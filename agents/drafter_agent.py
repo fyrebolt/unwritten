@@ -38,7 +38,7 @@ async def compose_letter(ctx: Context, sender: str, msg: DraftRequest):
     payload = {"contents": [{"parts": [{"text": prompt}]}]}
    
     try:
-        response = requests.post(url, json=payload, timeout=15)
+        response = requests.post(url, json=payload, timeout=(10, 90))
         result = response.json()
        
         if "candidates" in result:
