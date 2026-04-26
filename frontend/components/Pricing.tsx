@@ -51,7 +51,7 @@ export function Pricing() {
             variants={fadeUp}
             className="mt-10 font-sans text-eyebrow uppercase tracking-eyebrow text-ink-faint"
           >
-            *filler — replace with real model later
+            No trial. No paywall. Ever.
           </motion.p>
         </motion.div>
       </div>

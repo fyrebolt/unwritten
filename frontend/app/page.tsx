@@ -1,7 +1,7 @@
 import { Hero } from "@/components/Hero";
 import { StatsStrip } from "@/components/StatsStrip";
 import { HowItWorks } from "@/components/HowItWorks";
-import { PullQuote } from "@/components/PullQuote";
+import { Agents } from "@/components/Agents";
 import { Pricing } from "@/components/Pricing";
 import { Footer } from "@/components/Footer";
 import { TopNav } from "@/components/TopNav";
@@ -13,7 +13,7 @@ export default function Home() {
       <Hero />
       <StatsStrip />
       <HowItWorks />
-      <PullQuote />
+      <Agents />
       <Pricing />
       <Footer />
     </main>

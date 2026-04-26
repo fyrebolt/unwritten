@@ -4,6 +4,11 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { editorialEase } from "@/lib/motion";
 
+/**
+ * Optional landing testimonial block — not used on the current home page
+ * (replaced by the Agents section) but kept so marketing routes or A/B
+ * tests can re-enable it without resurrecting the file.
+ */
 export function PullQuote() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({

@@ -34,6 +34,7 @@ export function TopNav() {
 
         <nav className="hidden items-center gap-10 md:flex" aria-label="Sections">
           <NavLink href="#how-it-works">How it works</NavLink>
+          <NavLink href="#agents">The agents</NavLink>
           <NavLink href="#pricing">Pricing</NavLink>
           <NavLink href="#">Manifesto</NavLink>
         </nav>

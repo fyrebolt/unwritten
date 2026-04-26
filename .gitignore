@@ -35,6 +35,10 @@ pnpm-debug.log*
 *.tsbuildinfo
 .turbo/
 
+# Claude Code — stale worktree copies; we sync the landing page into
+# `frontend/` manually, not from this path.
+.claude/worktrees/
+
 # Python
 __pycache__/
 *.pyc
