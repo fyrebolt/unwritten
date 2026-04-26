@@ -4,10 +4,11 @@ import { getCase } from "@/lib/mock/cases";
 import { ReviewClient } from "./ReviewClient";
 
 export default function ReviewPage({ params }: { params: { id: string } }) {
-  // Real Mongo case → the live agents page is the canonical "review the draft"
-  // surface (the legacy ReviewClient was hardcoded for the mock data shape).
+  // Real Mongo case → skip the legacy debug review page and go straight to
+  // the editorial fax-confirmation flow. The agents already drafted the letter
+  // during the cinematic; the next user action is "send", not "edit".
   if (ObjectId.isValid(params.id) && params.id.length === 24) {
-    redirect(`/case/${params.id}/live`);
+    redirect(`/case/${params.id}/send`);
   }
   const c = getCase(params.id);
   if (!c) notFound();
