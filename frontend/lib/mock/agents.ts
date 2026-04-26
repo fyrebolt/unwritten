@@ -19,6 +19,15 @@ export type AgentEvent = {
   durationMs: number;
 };
 
+export type WorkspaceScriptContext = {
+  insurer?: string | null;
+  serviceDenied?: string | null;
+  denialReason?: string | null;
+  memberId?: string | null;
+  appealDeadline?: string | null;
+  memberName?: string | null;
+};
+
 export const agentLabels: Record<AgentKind, string> = {
   intake: "INTAKE AGENT",
   policy: "POLICY AGENT",
@@ -106,6 +115,85 @@ export const workspaceScript: AgentEvent[] = [
       "Prepared fax to +1 (559) 662-1000. Cover page and attachments attached. Awaiting user review.",
   },
 ];
+
+export function buildWorkspaceScript(ctx?: WorkspaceScriptContext): AgentEvent[] {
+  const insurer = clean(ctx?.insurer) ?? "the insurer";
+  const service = clean(ctx?.serviceDenied) ?? "the requested service";
+  const reason = clean(ctx?.denialReason) ?? "not medically necessary";
+  const memberId = clean(ctx?.memberId) ?? "member record";
+  const deadline = clean(ctx?.appealDeadline) ?? "the listed deadline";
+  const memberName = clean(ctx?.memberName) ?? "the member";
+
+  return [
+    {
+      id: "ev-1",
+      agent: "intake",
+      label: agentLabels.intake,
+      action: "Parsing denial letter and intake context…",
+      state: "working",
+      atSeconds: 0.2,
+      durationMs: 2800,
+      result: `Captured insurer (${insurer}), member reference (${memberId}), service (${service}), and denial basis (${reason}).`,
+    },
+    {
+      id: "ev-2",
+      agent: "policy",
+      label: agentLabels.policy,
+      action: `Checking ${insurer} coverage rules for the requested service…`,
+      state: "working",
+      atSeconds: 2.9,
+      durationMs: 4600,
+      result:
+        "Retrieved policy excerpts and identified the most relevant coverage criteria for this denial.",
+    },
+    {
+      id: "ev-3",
+      agent: "evidence",
+      label: agentLabels.evidence,
+      action: "Locating supporting clinical evidence and guideline language…",
+      state: "working",
+      atSeconds: 6.2,
+      durationMs: 4400,
+      result:
+        "Collected guideline-aligned evidence to support medical necessity arguments in the appeal.",
+    },
+    {
+      id: "ev-4",
+      agent: "policy",
+      label: agentLabels.policy,
+      action: "Cross-referencing denial rationale against policy criteria…",
+      state: "working",
+      atSeconds: 9.8,
+      durationMs: 2400,
+      result: `Mapped the denial basis (“${reason}”) to policy criteria and identified rebuttal points for ${memberName}.`,
+    },
+    {
+      id: "ev-5",
+      agent: "drafting",
+      label: agentLabels.drafting,
+      action: "Assembling formal appeal letter with policy + evidence support…",
+      state: "working",
+      atSeconds: 12.4,
+      durationMs: 5200,
+      result: `Drafted a structured appeal for ${service} addressed to ${insurer}, ready for final review.`,
+    },
+    {
+      id: "ev-6",
+      agent: "delivery",
+      label: agentLabels.delivery,
+      action: "Preparing delivery package and review handoff…",
+      state: "working",
+      atSeconds: 17.2,
+      durationMs: 2600,
+      result: `Final package staged with appeal deadline (${deadline}) for confirmation before send.`,
+    },
+  ];
+}
+
+function clean(value: string | null | undefined): string | null {
+  const v = value?.trim();
+  return v && v.length > 0 ? v : null;
+}
 
 // Agent config (user-adjustable knobs).
 export type AgentConfig = {

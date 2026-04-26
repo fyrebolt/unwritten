@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { workspaceScript } from "@/lib/mock/agents";
+import { buildWorkspaceScript } from "@/lib/mock/agents";
 import { agentFocusSchedule } from "@/lib/mock/denial";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -42,6 +42,35 @@ export function CaseWorkspaceClient({
   const agentsKickedRef = useRef(false);
   const isReal = Boolean(seed);
   const done = isReal ? animDone && agentsDone : animDone;
+  const draftMemberName = useMemo(() => {
+    if (!draftLetter) return null;
+    const firstNonEmpty = draftLetter
+      .split("\n")
+      .map((line) => line.trim())
+      .find((line) => line.length > 0);
+    if (!firstNonEmpty) return null;
+    if (/\b(appeals|dear|re:|date:)\b/i.test(firstNonEmpty)) return null;
+    return firstNonEmpty;
+  }, [draftLetter]);
+
+  const script = useMemo(() => {
+    const facts = seed?.denialDocument?.extractedFacts;
+    const caseFacts = seed?.appeal?.caseFacts;
+    const memberNameFromCaseFacts =
+      caseFacts &&
+      typeof caseFacts === "object" &&
+      typeof (caseFacts as Record<string, unknown>).member_name === "string"
+        ? ((caseFacts as Record<string, unknown>).member_name as string)
+        : null;
+    return buildWorkspaceScript({
+      insurer: facts?.insurer,
+      serviceDenied: facts?.serviceDenied,
+      denialReason: facts?.denialReasonText,
+      memberId: facts?.memberId,
+      appealDeadline: facts?.appealDeadline,
+      memberName: memberNameFromCaseFacts ?? draftMemberName,
+    });
+  }, [seed, draftMemberName]);
 
   useEffect(() => {
     let raf = 0;
@@ -81,13 +110,13 @@ export function CaseWorkspaceClient({
   }, [seed]);
 
   const visibleEvents = useMemo(
-    () => workspaceScript.filter((e) => e.atSeconds <= elapsed),
-    [elapsed],
+    () => script.filter((e) => e.atSeconds <= elapsed),
+    [script, elapsed],
   );
 
   const activeAgent = useMemo(() => {
-    for (let i = workspaceScript.length - 1; i >= 0; i--) {
-      const e = workspaceScript[i];
+    for (let i = script.length - 1; i >= 0; i--) {
+      const e = script[i];
       if (
         elapsed >= e.atSeconds &&
         elapsed < e.atSeconds + e.durationMs / 1000
@@ -96,7 +125,7 @@ export function CaseWorkspaceClient({
       }
     }
     return null;
-  }, [elapsed]);
+  }, [script, elapsed]);
 
   const currentFocus = useMemo(() => {
     for (let i = agentFocusSchedule.length - 1; i >= 0; i--) {
@@ -152,7 +181,7 @@ export function CaseWorkspaceClient({
           />
         </div>
         <div className="min-h-[600px] overflow-y-auto border-b border-rule px-6 py-8 lg:border-b-0 lg:px-8">
-          <DenialViewer focus={currentFocus} done={done} />
+          <DenialViewer focus={currentFocus} done={done} seed={seed} />
         </div>
         <div className="min-h-[600px] overflow-y-auto px-6 py-8 lg:px-8">
           <LiveLetter letter={draftLetter} done={done} />
