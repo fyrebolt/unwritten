@@ -34,3 +34,7 @@ pnpm-debug.log*
 # Misc
 *.tsbuildinfo
 .turbo/
+
+# Python
+__pycache__/
+*.pyc

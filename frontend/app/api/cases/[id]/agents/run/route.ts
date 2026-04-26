@@ -1,8 +1,14 @@
 /**
- * Loads a case, fetches the denial PDF from Cloudinary, and forwards everything
- * to the Python agents service. Persists the result on the case under
- * `appeal.draftLetter` plus structured findings, and returns the same payload
- * to the client. ~30s budget per call (Gemini drafting can be slow).
+ * Loads a case, gathers structured facts + the voice transcript, and forwards
+ * everything to the Python agents service. Persists the result on the case
+ * under `appeal.draftLetter` plus structured findings, and returns the same
+ * payload to the client.
+ *
+ * Always returns valid JSON. All errors (auth, db, agents, persistence) are
+ * caught and converted to user-safe `{ ok: false, error }` responses.
+ *
+ * ~30s budget per call (Gemini drafting can be slow, especially for the
+ * draft stage on cold cache).
  */
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
@@ -14,22 +20,37 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
+function jsonError(status: number, error: string, extras?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, error, ...(extras ?? {}) }, { status });
+}
+
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ ok: false, error: "unauthorized" }, { status: 401 });
+  // 1. Authenticate
+  let userId: string | null = null;
+  try {
+    const a = await auth();
+    userId = a.userId;
+  } catch (err) {
+    console.error("[agents/run] auth threw:", err);
+    return jsonError(401, "Could not verify your session. Try signing in again.");
   }
+  if (!userId) return jsonError(401, "unauthorized");
 
-  const caseDoc = await getCase(userId, params.id);
-  if (!caseDoc) {
-    return NextResponse.json({ ok: false, error: "not-found" }, { status: 404 });
+  // 2. Load case
+  let caseDoc;
+  try {
+    caseDoc = await getCase(userId, params.id);
+  } catch (err) {
+    console.error("[agents/run] getCase threw:", err);
+    return jsonError(500, "Could not load this case from the database.");
   }
+  if (!caseDoc) return jsonError(404, "not-found");
 
+  // 3. Compose context for agents — extracted facts + voice transcript.
   const transcript = caseDoc.patientNarrative?.voiceTranscript;
   const facts = caseDoc.denialDocument?.extractedFacts;
+  const cloudinaryMissing = !caseDoc.denialDocument?.cloudinaryUrl;
 
-  // Compose a text message from facts so the agents have context even when
-  // the PDF parse failed or there's no Cloudinary URL.
   const factsLine = facts
     ? [
         facts.insurer && `Insurer: ${facts.insurer}`,
@@ -41,28 +62,63 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
         .join("\n")
     : "";
 
-  const result = await runAgents({
-    message: factsLine || undefined,
-    voice: transcript || undefined,
-  });
+  console.log(
+    "[agents/run] dispatch",
+    JSON.stringify({
+      caseId: params.id,
+      hasFacts: Boolean(factsLine),
+      hasTranscript: Boolean(transcript),
+      cloudinaryMissing,
+    }),
+  );
 
-  if (!result.ok) {
-    return NextResponse.json(
-      { ok: false, error: result.error, rawResponse: result.rawResponse },
-      { status: 502 },
+  // 4. Call agents service
+  let result;
+  try {
+    result = await runAgents({
+      message: factsLine || undefined,
+      voice: transcript || undefined,
+    });
+  } catch (err) {
+    console.error("[agents/run] runAgents threw:", err);
+    return jsonError(
+      502,
+      "The agents service is unavailable. Confirm `python -m agents.main_api` is running on :8788.",
     );
   }
 
-  const updated = await setAppealResults(userId, params.id, {
-    draftLetter: result.letter,
-    policyFinding: result.policyFinding,
-    evidenceFinding: result.evidenceFinding,
-    caseFacts: result.caseFacts,
-  });
+  if (!result.ok) {
+    console.warn("[agents/run] agents returned error:", result.error);
+    return jsonError(502, result.error, {
+      // Pass rawResponse for the client's debug panel — it's already serializable.
+      rawResponse: result.rawResponse,
+    });
+  }
+
+  const pdfNote = cloudinaryMissing
+    ? "Ran on extracted facts only — no PDF on file (Cloudinary not configured)."
+    : undefined;
+
+  // 5. Persist (best-effort — agents already produced the letter, so save
+  // failure shouldn't block the user from seeing it).
+  let serializedCase = null;
+  try {
+    const updated = await setAppealResults(userId, params.id, {
+      draftLetter: result.letter,
+      policyFinding: result.policyFinding,
+      evidenceFinding: result.evidenceFinding,
+      caseFacts: result.caseFacts,
+    });
+    serializedCase = updated ? serializeCase(updated) : null;
+  } catch (err) {
+    console.error("[agents/run] setAppealResults threw (returning result anyway):", err);
+  }
 
   return NextResponse.json({
     ok: true,
-    case: updated ? serializeCase(updated) : null,
+    pdfNote,
+    case: serializedCase,
+    debug: result.debug,
     result: {
       letter: result.letter,
       policyFinding: result.policyFinding,

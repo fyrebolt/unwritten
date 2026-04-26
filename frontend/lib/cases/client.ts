@@ -75,6 +75,8 @@ export type RunAgentsResponse = {
   ok: true;
   pdfNote?: string;
   case: ClientCase | null;
+  /** Debug info from the Python pipeline — fallbacks used, service category, etc. */
+  debug?: Record<string, unknown>;
   result: {
     letter: string;
     policyFinding: string;

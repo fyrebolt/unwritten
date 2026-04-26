@@ -20,6 +20,8 @@ export type AgentsRunResult = {
   policyFinding: string;
   evidenceFinding: string;
   letter: string;
+  /** Structured debug from the Python pipeline — fallbacks used, category. */
+  debug?: Record<string, unknown>;
   rawResponse: unknown;
 };
 
@@ -77,6 +79,10 @@ export async function runAgents(
     policyFinding: typeof json.policy_finding === "string" ? json.policy_finding : "",
     evidenceFinding: typeof json.evidence_finding === "string" ? json.evidence_finding : "",
     letter: typeof json.letter === "string" ? json.letter : "",
+    debug:
+      typeof json.debug === "object" && json.debug
+        ? (json.debug as Record<string, unknown>)
+        : undefined,
     rawResponse: json,
   };
 }

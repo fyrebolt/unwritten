@@ -1,0 +1,16 @@
+# Python dependencies for the Unwritten agents service.
+#
+# Install:
+#   cd agents
+#   python3 -m venv .venv
+#   source .venv/bin/activate
+#   pip install -r requirements.txt
+#
+# Run:
+#   python -m agents.main_api    # starts the HTTP API on :8788
+#
+# The agents service reads GEMINI_API_KEY from backend/.env (see
+# agent_workflow.py — it loads backend/.env first, then root .env).
+
+requests>=2.32,<3
+python-dotenv>=1.0,<2
