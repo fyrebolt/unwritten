@@ -1,0 +1,14 @@
+{
+  "id": "aetna_surgery_802308",
+  "source": "Insurer Medical Policy Bulletin",
+  "is_synthetic": false,
+  "is_denial_letter": false,
+  "doc_type": "medical_policy_bulletin",
+  "insurer": "Aetna",
+  "category": "Surgery",
+  "policy_title": "Cochlear Implants \u2014 CPB 0013",
+  "policy_url": "https://www.aetna.com/cpb/medical/data/1_99/0013.html",
+  "content_type": "text/html",
+  "size_bytes": 294007,
+  "fetched_at": "2026-04-25T04:11:19.978074+00:00"
+}

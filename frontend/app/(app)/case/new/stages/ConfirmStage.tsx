@@ -1,9 +1,12 @@
 "use client";
 
+import { AdvancedImage } from "@cloudinary/react";
 import { motion } from "framer-motion";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { getCld } from "@/lib/cloudinary/config";
+import { scale } from "@cloudinary/url-gen/actions/resize";
 import type { IntakeDraft } from "../NewCaseClient";
 
 const FIELDS: { key: keyof IntakeDraft["extracted"]; label: string }[] = [
@@ -38,9 +41,44 @@ export function ConfirmStage({
           Everything else lives in the file.
         </p>
         {draft.fileName && (
-          <div className="mt-4 flex items-center gap-3 border border-rule px-4 py-3">
-            <DocGlyph />
-            <span className="font-sans text-[12px] text-ink">{draft.fileName}</span>
+          <div className="mt-4 space-y-3 border border-rule px-4 py-3">
+            <div className="flex items-center gap-3">
+              <DocGlyph />
+              <span className="font-sans text-[12px] text-ink">{draft.fileName}</span>
+            </div>
+            {draft.parseNote && (
+              <p className="font-sans text-[11px] leading-relaxed text-ink-muted">{draft.parseNote}</p>
+            )}
+            {draft.denialAsset && (
+              <>
+                <p className="font-sans text-[10px] uppercase tracking-[0.22em] text-ink-faint">
+                  Stored on Cloudinary
+                  {draft.denialAsset.resourceType === "raw" ? " · PDF" : ""}
+                </p>
+                {draft.denialAsset.resourceType === "image" ? (
+                  <div className="aspect-[4/3] w-full max-w-sm overflow-hidden border border-rule bg-paper-deep/30">
+                    <AdvancedImage
+                      cldImg={getCld()
+                        .image(draft.denialAsset.publicId)
+                        .resize(scale().width(720))
+                        .format("auto")
+                        .quality("auto")}
+                      alt="Denial letter preview"
+                      className="h-full w-full object-cover object-top"
+                    />
+                  </div>
+                ) : (
+                  <a
+                    href={draft.denialAsset.secureUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block font-sans text-[11px] uppercase tracking-[0.18em] text-ochre underline-offset-4 hover:underline"
+                  >
+                    Open uploaded file
+                  </a>
+                )}
+              </>
+            )}
           </div>
         )}
         {draft.transcript && (

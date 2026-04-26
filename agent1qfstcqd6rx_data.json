@@ -1,0 +1,10 @@
+{
+    "human_user": "agent1qf3w5ksxmvdvnpcjxyrn2xcxxhmt6ajg92delf6kkan8sdxh72pmj0knxd3",
+    "case_facts": {
+        "insurer": "Anthem",
+        "medication": "Ozempic",
+        "denial_reason": "Claim denied"
+    },
+    "policy_data": "Step therapy requirement is satisfied if documented intolerance to Metformin exists. (Source: Anthem Clinical Policy Bulletin #MED.0001)",
+    "evidence_data": "GLP-1 receptor agonists are recommended when metformin is contraindicated. (Source: ADA Standards of Care 2024)"
+}

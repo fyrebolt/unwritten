@@ -1,0 +1,54 @@
+KAISER PERMANENTE
+393 East Walnut Street, Pasadena, CA 91188
+Customer Care: 1-800-464-4000
+
+February 16, 2024
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-334053    Group: GRP-28289
+Claim #: CLM-890779946    Auth #: AUTH-B2458591
+Provider: [Provider on File]    NPI: 7831113321
+Date of service: 02/08/2024
+
+RE: Notice of Adverse Benefit Determination
+Service: MRI lumbar spine without contrast
+Diagnosis: lumbar disc disorder with radiculopathy (ICD-10 M51.16)
+Determination: DENIED — Step therapy required (CO-242)
+
+Dear Member,
+
+This letter is to inform you of the outcome of your request for the service identified below. Kaiser Permanente has completed its review.
+
+REASON FOR DENIAL
+Our pharmacy benefit requires step therapy for this medication. Step therapy means you must first try one or more preferred medications before we will cover the requested non-preferred medication. Our records do not show documented trial and failure of the preferred alternatives required by your formulary.
+
+For MRI lumbar spine without contrast, our formulary requires documented trial and failure (or contraindication) of two preferred alternatives before non-preferred therapy is approved. The clinical notes submitted do not include this documentation.
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering MRI/imaging. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (August 14, 2024). Send your appeal to:
+
+Kaiser Permanente — Member Relations Department
+P.O. Box 23170
+Oakland, CA 94623
+Fax: 1-510-625-5599
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please call Member Services at the number listed on your Kaiser Permanente ID card.
+
+Sincerely,
+
+Member Relations — Kaiser Permanente
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

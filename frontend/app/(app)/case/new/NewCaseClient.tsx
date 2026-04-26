@@ -7,11 +7,15 @@ import { UploadStage } from "./stages/UploadStage";
 import { VoiceStage } from "./stages/VoiceStage";
 import { ConfirmStage } from "./stages/ConfirmStage";
 import { StageProgress } from "./stages/StageProgress";
+import type { DenialAsset } from "@/lib/cloudinary/types";
+import type { IntakeUploadPayload } from "@/lib/intake/types";
 
 export type Stage = "upload" | "voice" | "confirm";
 
 export type IntakeDraft = {
   fileName?: string;
+  denialAsset?: DenialAsset;
+  parseNote?: string;
   transcript?: string;
   extracted: {
     insurer: string;
@@ -41,18 +45,13 @@ export function NewCaseClient() {
 
   const advance = (next: Stage) => setStage(next);
 
-  const handleExtraction = (fileName: string) => {
+  const handleExtraction = (payload: IntakeUploadPayload) => {
     setDraft((d) => ({
       ...d,
-      fileName,
-      extracted: {
-        insurer: "Anthem Blue Cross",
-        planType: "PPO · CA",
-        memberId: "XGJ442198730",
-        serviceDenied: "Semaglutide (Ozempic) 1.0mg weekly",
-        denialReason: "Not medically necessary",
-        appealDeadline: "April 6, 2026",
-      },
+      fileName: payload.fileName,
+      denialAsset: payload.asset,
+      parseNote: payload.parseNote,
+      extracted: payload.extracted,
     }));
     advance("voice");
   };

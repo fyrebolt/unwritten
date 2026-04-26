@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45072
+Report Year: 2025
+Diagnosis Category: Endocrine/Metabolic / Diabetes
+Treatment Category: DME / Glucose Monitor
+IMR Type: Medical Necessity
+Patient: age 41 to 50, gender Female
+Days to review: 42     Days to adopt: 59
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for a continuous glucose monitor (CGM) system, Libre 3. In this case, the patient’s type 2 diabetes mellitus (DM) is under inadequate control, and the use of CGM is likely to help improve the patient’s diabetes control. Given that a CGM is likely to help improve the patient’s diabetes control, the requested equipment is medically appropriate in this clinical setting. As such, the requested continuous glucose monitor system, Libre 3, is medically necessary for the treatment of this patient.Final Result: The reviewer determined that the equipment is medically necessary for the treatment of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in internal medicine with a subspecialty certification in endocrinology, diabetes, and metabolism, and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45177
+Report Year: 2025
+Diagnosis Category: Cancer / Tumor
+Treatment Category: Cancer Care / Radiation Therapy
+IMR Type: Medical Necessity
+Patient: age 51 to 64, gender Female
+Days to review: 4     Days to adopt: 22
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that a patient has requested authorization and coverage for GammaTile therapy. GammaTile is a form of surgically targeted radiation therapy used to treat brain tumors. It involves implanting a collagen-based tile embedded with radiation sources directly into the tumor cavity. This approach allows for immediate, targeted radiation delivery to the tumor site, potentially preventing regrowth and minimizing damage to surrounding healthy tissue. GammaTile is U.S. Food and Drug Administration (FDA)-approved and has been proven to be a very effective treatment for recurrent meningioma. In this case, the patient has a history of reccurent meningioma status post prior surgical resection with disease progression despite treatment with radiation therapy and other systemic therapy. The literature supports the use of GammaTile in this clinical scenario. All told, the requested GammaTile therapy is medically necessary for the treatment of this patient. Final Result: The reviewer determined that the requested procedure is medically necessary for the treatment of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in neurological surgery and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

@@ -1,0 +1,54 @@
+KAISER PERMANENTE
+393 East Walnut Street, Pasadena, CA 91188
+Customer Care: 1-800-464-4000
+
+July 01, 2025
+
+[REDACTED]
+[Member Address on File]
+
+Member: [REDACTED]    DOB: [REDACTED]
+Member ID: SAMPLE-567574    Group: GRP-30861
+Claim #: CLM-898493949    Auth #: AUTH-H8550917
+Provider: [Provider on File]    NPI: 8033702319
+Date of service: 05/24/2025
+
+RE: Notice of Adverse Benefit Determination
+Service: Egg retrieval and cryopreservation
+Diagnosis: encounter for fertility testing (ICD-10 Z31.41)
+Determination: DENIED — Benefit maximum reached (CO-119)
+
+Dear Member,
+
+This letter is to inform you of the outcome of your request for the service identified below. Kaiser Permanente has completed its review.
+
+REASON FOR DENIAL
+Your plan has a benefit limit on this service category. According to our records, the maximum number of visits or units allowed within the current benefit period has been reached. Additional services beyond this limit are the member's financial responsibility.
+
+The specific service under review is Egg retrieval and cryopreservation, billed for the diagnosis of encounter for fertility testing (ICD-10 Z31.41).
+
+MEDICAL POLICY APPLIED
+This determination was made under our Medical Policy / Clinical Policy Bulletin covering Fertility treatment. You may request a free copy of the policy used in this review by calling Member Services.
+
+YOUR APPEAL RIGHTS
+You have the right to appeal this decision. To file an appeal, you or your authorized representative must submit a written request within 180 days of the date of this notice (December 28, 2025). Send your appeal to:
+
+Kaiser Permanente — Member Relations Department
+P.O. Box 23170
+Oakland, CA 94623
+Fax: 1-510-625-5599
+
+You may also request an Independent Medical Review (IMR) through your state regulator, and you may have rights to expedited review if a delay would seriously jeopardize your life or health. If your plan is governed by ERISA, you have additional federal appeal rights, including the right to bring civil action under §502(a) following exhaustion of the plan's internal appeal process.
+
+WHAT TO SUBMIT WITH YOUR APPEAL
+Please include: (1) a copy of this notice; (2) the specific reasons you disagree with the determination; (3) any additional medical records, peer-reviewed literature, or letters of medical necessity that support your appeal; and (4) any other information you believe is relevant.
+
+If you have any questions, please call Member Services at the number listed on your Kaiser Permanente ID card.
+
+Sincerely,
+
+Member Relations — Kaiser Permanente
+
+---
+THIS IS A SYNTHETIC DOCUMENT — generated for the Unwritten demo corpus.
+Modeled on the structure of real insurer denial letters; no real PHI included.

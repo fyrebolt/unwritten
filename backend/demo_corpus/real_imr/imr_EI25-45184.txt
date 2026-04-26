@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: EI25-45184
+Report Year: 2025
+Diagnosis Category: Cancer / Lung
+Treatment Category: Cancer Care / Cancer Rx
+IMR Type: Experimental/Investigational
+Patient: age 51 to 64, gender Male
+Days to review: 7     Days to adopt: 22
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that a patient has requested authorization and coverage for lazertinib (Lazcluze) with amivantamab. Advanced non-small cel lung cancer with epidermal growth factor receptor gene mutations, including an exon 18 deletion, including can be directly targeted and often respond to treatment with tyrosine kinase inhibitors. In this case, the patient has a history of stage IV metastatic non-small cell lung cancer with an epidermal growth factor receptor gene exon 18 deletion mutation. The patient has brain and bone metastases despite prior treatment with multiple prior systemic therapies. Given these findings, the requested combination therapies is likely to be more beneficial for the treatment of the patient than any available standard therapy. Findings: Three of the three reviewers found that the requested medications are likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy.Final Result: The reviewers determined that the requested medications are likely to be more beneficial for the treatment of the patient's medical condition than any available standard therapy. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: Reviewer 1 is board-certified in medical oncology and hematology and is actively practicing. Reviewer 2 is board-certified in medical oncology and hematology and is actively practicing. Reviewer 3 is board-certified in internal medicine with subspecialty certifications in hematology and medical oncology and is actively practicing. The reviewers are experts in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

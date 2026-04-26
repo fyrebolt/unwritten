@@ -1,0 +1,16 @@
+CALIFORNIA DEPARTMENT OF MANAGED HEALTH CARE
+INDEPENDENT MEDICAL REVIEW (IMR) DECISION — REDACTED
+Source: CHHS Open Data Portal
+Reference ID: MN25-45368
+Report Year: 2025
+Diagnosis Category: CNS/ Neuromusc Dis / Apnea/Sleep Apnea
+Treatment Category: Pharmacy / Glucagon-Like Peptide-1 (GLP)
+IMR Type: Medical Necessity
+Patient: age 51 to 64, gender Female
+Days to review: 27     Days to adopt: 63
+Determination: Overturned Decision of Health Plan
+----------------------------------------------------------
+
+FINDINGS
+
+Findings:  The physician reviewer found that Nature of Statutory Criteria/Case Summary: A patient has requested authorization and coverage for Zepbound. According to a study, obstructive sleep apnea (OSA) is characterized by disordered breathing during sleep and excess adiposity is an etiologic risk factor. The authors noted that the benefit of substantial weight reduction in the treatment of patients with OSA is well recognized, and that clinical guidelines recommend treatment of obesity in patients with OSA. The authors studied the use of Zepbound in patients with obesity and moderate-to-severe OSA and found that Zepbound showed significant weight reduction and improvement in the severity of OSA. In this case, the patient presents with obesity based on a body mass index (BMI) of 34.02 kg/m2 and moderate OSA based on an apnea-hypopnea index (AHI) of 17.8. The medical literature supports the use of Zepbound in this patient’s clinical setting. Therefore, the requested Zepbound is medically necessary for the treatment of this patient’s sleep apnea.Final Result: The reviewer determined that the requested medication is medically necessary for the treatment of the patient's medical condition. Therefore, the Health Plan's denial should be overturned.Credentials/Qualifications: The reviewer is board-certified in internal medicine with subspecialty certification in sleep medicine and is actively practicing. The reviewer is an expert in the treatment of the patient's medical condition and knowledgeable about the proposed treatment through recent or current actual clinical experience treating those with the same or a similar medical condition.

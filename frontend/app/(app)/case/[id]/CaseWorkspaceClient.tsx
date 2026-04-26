@@ -100,10 +100,11 @@ export function CaseWorkspaceClient({ caseItem }: { caseItem: MockCase }) {
             visible={visibleEvents}
             activeAgent={activeAgent?.agent}
             elapsed={elapsed}
+            done={done}
           />
         </div>
         <div className="min-h-[600px] overflow-y-auto border-b border-rule px-6 py-8 lg:border-b-0 lg:px-8">
-          <DenialViewer focus={currentFocus} />
+          <DenialViewer focus={currentFocus} done={done} />
         </div>
         <div className="min-h-[600px] overflow-y-auto px-6 py-8 lg:px-8">
           <LiveLetter

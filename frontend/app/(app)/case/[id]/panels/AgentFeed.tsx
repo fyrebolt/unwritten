@@ -9,17 +9,19 @@ export function AgentFeed({
   visible,
   activeAgent,
   elapsed,
+  done,
 }: {
   visible: AgentEvent[];
   activeAgent?: AgentKind;
   elapsed: number;
+  done: boolean;
 }) {
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-baseline justify-between">
         <Eyebrow>Agent activity</Eyebrow>
         <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-ink-faint">
-          {elapsed < 20 ? `${elapsed.toFixed(1)}s` : "complete"}
+          {done ? "Complete" : `${elapsed.toFixed(1)}s`}
         </span>
       </div>
 

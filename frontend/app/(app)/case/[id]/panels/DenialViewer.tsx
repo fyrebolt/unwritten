@@ -9,13 +9,19 @@ import {
 } from "@/lib/mock/denial";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
-export function DenialViewer({ focus }: { focus: DenialHighlight["tag"] | null }) {
+export function DenialViewer({
+  focus,
+  done,
+}: {
+  focus: DenialHighlight["tag"] | null;
+  done: boolean;
+}) {
   return (
     <div className="flex h-full flex-col gap-6">
       <div className="flex items-baseline justify-between">
         <Eyebrow>Denial · Source document</Eyebrow>
         <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-ink-faint">
-          Anthem · 03.07.26
+          {done ? "Reviewed" : "Analyzing"}
         </span>
       </div>
 
