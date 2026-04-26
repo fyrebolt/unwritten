@@ -7,9 +7,9 @@
  * - Uses Web Speech API when the browser exposes it (Chromium); rebuilds transcript from all `results`
  *   each `onresult` (fixes broken incremental concatenation).
  * - Always records audio with MediaRecorder for server backup if live text is empty.
- * - Probes `/health` for `intakeWhisper` before calling the API; blocks start if neither Web Speech nor
- *   server Whisper is available (Firefox + no keys).
- * - Shows hints when live captions are missing or Whisper backup is off.
+ * - Probes `/health` for any server STT backend (local Whisper, Gemini audio, or OpenAI Whisper API)
+ *   before calling the API; blocks start if neither Web Speech nor a server backend is available.
+ * - Shows hints when live captions are missing or the server backup is off.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -31,8 +31,22 @@ function getSpeechRecognitionCtor(): (new () => SpeechRecognition) | null {
 async function fetchIntakeWhisperReady(): Promise<boolean> {
   try {
     const res = await fetch(`${getApiBase()}/health`);
-    const data = (await res.json()) as { intakeWhisper?: boolean };
-    return Boolean(data.intakeWhisper);
+    const data = (await res.json()) as {
+      // New shape (current backend) — any server backend is enough.
+      intakeTranscribe?: boolean;
+      intakeWhisperLocal?: boolean;
+      intakeWhisperOpenai?: boolean;
+      intakeGemini?: boolean;
+      // Legacy shape, kept for backward compat with older backend builds.
+      intakeWhisper?: boolean;
+    };
+    return Boolean(
+      data.intakeTranscribe ??
+        data.intakeWhisperLocal ??
+        data.intakeGemini ??
+        data.intakeWhisperOpenai ??
+        data.intakeWhisper,
+    );
   } catch {
     return false;
   }
@@ -101,7 +115,7 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
     if (!SR && !whisper) {
       setMode("error");
       setErrorMessage(
-        "This browser has no live speech-to-text, and the server has no Whisper backup. Set LOCAL_WHISPER=1 with openai-whisper + ffmpeg on the API host, or OPENAI_API_KEY for the Whisper API (backend/.env), restart the server, use “type instead”, or open this page in Edge or Chrome with backup enabled.",
+        "This browser has no live speech-to-text, and the server has no transcription backend. Easiest: set GEMINI_API_KEY in backend/.env (no install). Or LOCAL_WHISPER=1 with ffmpeg + openai-whisper, or OPENAI_API_KEY for the Whisper API. Restart the server after editing, use “type instead”, or open this page in Edge/Chrome.",
       );
       return;
     }
@@ -197,7 +211,7 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
     if (!whisperAvailable) {
       setMode("error");
       setErrorMessage(
-        "We couldn’t turn speech into text in this browser, and the API has no Whisper backup. Set LOCAL_WHISPER=1 (open-source Whisper on the server) or OPENAI_API_KEY in backend/.env, restart the server, try Edge/Chrome for live captions, or use “type instead” below.",
+        "We couldn’t turn speech into text in this browser, and the API has no transcription backend configured. Easiest fix: set GEMINI_API_KEY in backend/.env (no install). Or set LOCAL_WHISPER=1 with ffmpeg + openai-whisper, or OPENAI_API_KEY for the Whisper API. Restart the server after editing. Otherwise try Edge/Chrome for live captions, or use “type instead” below.",
       );
       return;
     }
@@ -211,13 +225,13 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
       const msg = e instanceof Error ? e.message : "Transcription failed.";
       const missingKey =
         /\b501\b/i.test(msg) ||
-        /OPENAI_API_KEY|LOCAL_WHISPER|not set on the API|No server speech-to-text|No intake transcription/i.test(
+        /GEMINI_API_KEY|OPENAI_API_KEY|LOCAL_WHISPER|not set on the API|No server speech-to-text|No intake transcription|No transcription backend/i.test(
           msg,
         );
       if (missingKey) {
         setMode("error");
         setErrorMessage(
-          "Whisper backup is unavailable (LOCAL_WHISPER=1 + openai-whisper on the server, or OPENAI_API_KEY). Check backend/.env and restart. Speak a little longer, try Edge/Chrome for live captions, or type below.",
+          "Server transcription backup is unavailable. Easiest: set GEMINI_API_KEY in backend/.env (no install). Or LOCAL_WHISPER=1 with ffmpeg + openai-whisper on the server, or OPENAI_API_KEY for the Whisper API. Restart after editing. Speak a little longer, try Edge/Chrome for live captions, or type below.",
         );
       } else {
         setMode("error");

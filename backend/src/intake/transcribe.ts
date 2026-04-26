@@ -1,17 +1,21 @@
 /**
  * Intake “what happened?” voice → text (Step 02 backup when Web Speech is empty or unavailable).
  *
- * What this does:
- * - Prefers LOCAL_WHISPER=1: run open-source Whisper on the API machine (ffmpeg + pip `openai-whisper`).
- * - Else uses OpenAI `whisper-1` HTTP API when OPENAI_API_KEY is set.
- * - If Anthropic is configured, optionally polishes the STT string; polish errors fall back to raw STT
- *   so a bad Claude call does not lose a good transcript.
+ * Backend chain (first available wins, with auto-fallback on failure):
+ *   1. LOCAL_WHISPER=1 — open-source Whisper on the API host (needs ffmpeg + pip `openai-whisper`).
+ *   2. Gemini — `inline_data` audio to gemini-2.0-flash. No system deps; uses GEMINI_API_KEY.
+ *   3. OpenAI Whisper API — needs OPENAI_API_KEY.
+ *
+ * If Anthropic is configured, the STT string is optionally polished; polish errors fall back to
+ * raw STT so a bad Claude call does not lose a good transcript.
  *
  * Primary UX is still the browser Web Speech API + typing; see `VoiceStage.tsx`.
  * @see https://github.com/openai/whisper
+ * @see https://ai.google.dev/gemini-api/docs/audio
  */
 
 import { localWhisperEnabled, transcribeWithLocalOpenaiWhisper } from "./whisper-local.js";
+import { geminiTranscribeAvailable, transcribeWithGemini } from "./gemini-transcribe.js";
 
 function anthropicIntakeModel(): string {
   return (
@@ -107,38 +111,73 @@ export async function polishIntakeTranscriptWithClaude(apiKey: string, draft: st
 export type IntakeTranscribeKeys = {
   openaiKey?: string;
   anthropicKey?: string;
+  geminiKey?: string;
 };
 
+export function intakeTranscribeAvailable(keys: IntakeTranscribeKeys): boolean {
+  return (
+    localWhisperEnabled() ||
+    Boolean(keys.geminiKey) ||
+    Boolean(keys.openaiKey) ||
+    geminiTranscribeAvailable()
+  );
+}
+
 /**
- * Prefers LOCAL_WHISPER=1 (github.com/openai/whisper on the host). Falls back to Whisper API if local fails and OPENAI_API_KEY is set.
+ * Tries each configured STT backend in priority order, falling back on failure.
+ * Returns the first non-empty transcript. Throws an aggregated error if none work.
  */
 export async function transcribeIntakeRecording(
   keys: IntakeTranscribeKeys,
   buf: Buffer,
   filename: string,
 ): Promise<string> {
-  let draft: string;
+  const geminiKey = keys.geminiKey || process.env.GEMINI_API_KEY?.trim() || process.env.GOOGLE_API_KEY?.trim();
+  const attempts: Array<{ name: string; run: () => Promise<string> }> = [];
 
   if (localWhisperEnabled()) {
-    try {
-      draft = await transcribeWithLocalOpenaiWhisper(buf, filename);
-    } catch (localErr) {
-      if (keys.openaiKey) {
-        draft = await transcribeWithOpenAiWhisper(keys.openaiKey, buf, filename);
-      } else {
-        throw localErr;
-      }
-    }
-  } else if (keys.openaiKey) {
-    draft = await transcribeWithOpenAiWhisper(keys.openaiKey, buf, filename);
-  } else {
+    attempts.push({ name: "local-whisper", run: () => transcribeWithLocalOpenaiWhisper(buf, filename) });
+  }
+  if (geminiKey) {
+    attempts.push({ name: "gemini", run: () => transcribeWithGemini(geminiKey, buf, filename) });
+  }
+  if (keys.openaiKey) {
+    attempts.push({ name: "openai-whisper", run: () => transcribeWithOpenAiWhisper(keys.openaiKey!, buf, filename) });
+  }
+
+  if (attempts.length === 0) {
     throw new Error(
-      "No transcription backend: set LOCAL_WHISPER=1 with ffmpeg + openai-whisper on the server (see https://github.com/openai/whisper), or set OPENAI_API_KEY for the Whisper API.",
+      "No transcription backend configured. Set GEMINI_API_KEY (no install), or set LOCAL_WHISPER=1 with ffmpeg + openai-whisper on the server (https://github.com/openai/whisper), or set OPENAI_API_KEY for the Whisper API.",
     );
   }
 
-  draft = draft.trim();
-  if (!draft) throw new Error("No speech detected in the recording.");
+  let draft = "";
+  const errors: string[] = [];
+  for (const attempt of attempts) {
+    try {
+      const out = (await attempt.run()).trim();
+      if (out) {
+        draft = out;
+        if (errors.length) {
+          console.warn(
+            `[intake/transcribe] ${attempt.name} succeeded after fallbacks: ${errors.join(" | ")}`,
+          );
+        }
+        break;
+      }
+      errors.push(`${attempt.name}: empty transcript`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      errors.push(`${attempt.name}: ${msg}`);
+      console.warn(`[intake/transcribe] ${attempt.name} failed:`, msg);
+    }
+  }
+
+  if (!draft) {
+    throw new Error(
+      `All transcription backends failed. ${errors.join(" | ")}`,
+    );
+  }
 
   if (keys.anthropicKey) {
     try {

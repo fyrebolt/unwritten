@@ -3,7 +3,8 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { logger } from "hono/logger";
 import { cors } from "hono/cors";
-import { Types } from "mongoose";
+import mongoose from "mongoose";
+const { Types } = mongoose;
 import { env } from "./env";
 import { connectToDatabase } from "./db";
 import { hashPassword, signAuthToken, verifyAuthToken, verifyPassword } from "./lib/auth";
@@ -12,8 +13,9 @@ import { Case } from "./models/Case";
 import type { DenialExtracted } from "./extraction/types.js";
 import { fetchCloudinaryAsset, hasCloudinaryCredentials } from "./denial/cloudinary-fetch.js";
 import { extractFromImageBuffer, extractFromPdfBuffer } from "./denial/parse-handler.js";
-import { transcribeIntakeRecording } from "./intake/transcribe.js";
+import { transcribeIntakeRecording, intakeTranscribeAvailable } from "./intake/transcribe.js";
 import { localWhisperEnabled } from "./intake/whisper-local.js";
+import { geminiTranscribeAvailable } from "./intake/gemini-transcribe.js";
 
 const app = new Hono();
 
@@ -67,9 +69,14 @@ app.get("/health", (c) =>
     openai: Boolean(openaiKey()),
     gemini: Boolean(geminiKey()),
     anthropicConfigured: Boolean(anthropicKey()),
-    intakeWhisper: Boolean(openaiKey()) || localWhisperEnabled(),
+    intakeTranscribe:
+      intakeTranscribeAvailable({
+        openaiKey: openaiKey(),
+        geminiKey: geminiKey(),
+      }) || geminiTranscribeAvailable(),
     intakeWhisperOpenai: Boolean(openaiKey()),
     intakeWhisperLocal: localWhisperEnabled(),
+    intakeGemini: geminiTranscribeAvailable(),
     intakeClaudePolish: Boolean(anthropicKey()),
     cloudinarySignedFetch: hasCloudinaryCredentials(),
   }),
@@ -429,13 +436,16 @@ app.route("/v1/denial", denial);
 const intake = new Hono();
 intake.post("/transcribe", async (c) => {
   const okey = openaiKey();
-  if (!okey && !localWhisperEnabled()) {
+  const gkey = geminiKey();
+  const akey = anthropicKey();
+
+  if (!intakeTranscribeAvailable({ openaiKey: okey, geminiKey: gkey })) {
     return c.json(
       {
         ok: false,
         error: "No intake transcription backend is configured.",
         hint:
-          "Set LOCAL_WHISPER=1 with ffmpeg + pip install openai-whisper on the server (https://github.com/openai/whisper), and/or OPENAI_API_KEY for the Whisper API. Optional: ANTHROPIC_API_KEY polishes text. Or use Web Speech / type below.",
+          "Easiest: set GEMINI_API_KEY (no install). Or LOCAL_WHISPER=1 with ffmpeg + pip install openai-whisper (https://github.com/openai/whisper). Or OPENAI_API_KEY for Whisper API. ANTHROPIC_API_KEY optionally polishes the text. You can also use Web Speech / typing in the browser.",
       },
       501,
     );
@@ -457,7 +467,7 @@ intake.post("/transcribe", async (c) => {
 
   try {
     const text = await transcribeIntakeRecording(
-      { openaiKey: okey, anthropicKey: anthropicKey() },
+      { openaiKey: okey, geminiKey: gkey, anthropicKey: akey },
       buf,
       name,
     );
@@ -550,12 +560,18 @@ serve({ fetch: app.fetch, port }, (info) => {
 });
 
 connectToDatabase()
-  .then(() => {
-    console.log("[unwritten-api] connected to MongoDB");
+  .then((didConnect) => {
+    if (didConnect) console.log("[unwritten-api] connected to MongoDB");
+    else
+      console.log(
+        "[unwritten-api] running without MongoDB (parse + intake endpoints only)",
+      );
   })
   .catch((error) => {
-    console.error("[unwritten-api] failed to connect to MongoDB", error);
-    process.exit(1);
+    console.error(
+      "[unwritten-api] failed to connect to MongoDB — continuing without it",
+      error instanceof Error ? error.message : error,
+    );
   });
 
 export default app;

@@ -1,7 +1,7 @@
 type AppEnv = {
   nodeEnv: string;
   port: number;
-  mongoUri: string;
+  mongoUri: string | null;
   jwtSecret: string;
   jwtExpiresIn: string;
   corsOrigins: string[];
@@ -16,22 +16,26 @@ function parsePort(value: string | undefined): number {
 }
 
 function parseCorsOrigins(value: string | undefined): string[] {
-  const fallback = "http://localhost:3000,http://127.0.0.1:3000";
+  const fallback = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001";
   return (value ?? fallback)
     .split(",")
     .map((origin) => origin.trim())
     .filter(Boolean);
 }
 
-const mongoUri = process.env.MONGO_URI;
+// MONGO_URI / JWT_SECRET are only required by the legacy bcrypt-auth + case
+// routes. The frontend uses Clerk and writes to Mongo via Next.js API routes
+// directly, so the parse/intake endpoints can run without them. We log a
+// warning but don't crash the process.
+const mongoUri = process.env.MONGO_URI?.trim() || null;
 if (!mongoUri) {
-  throw new Error("MONGO_URI is required");
+  console.warn(
+    "[unwritten-api] MONGO_URI not set — legacy /v1/auth and /v1/cases routes are disabled. " +
+      "Denial parse + intake transcription endpoints still work.",
+  );
 }
 
-const jwtSecret = process.env.JWT_SECRET;
-if (!jwtSecret) {
-  throw new Error("JWT_SECRET is required");
-}
+const jwtSecret = process.env.JWT_SECRET?.trim() || "dev-only-insecure-secret-change-me";
 
 export const env: AppEnv = {
   nodeEnv: process.env.NODE_ENV ?? "development",

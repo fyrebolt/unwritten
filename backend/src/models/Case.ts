@@ -1,4 +1,7 @@
-import { Schema, model, models, Types } from "mongoose";
+import mongoose from "mongoose";
+
+const { Schema, model, models } = mongoose;
+import type { Types } from "mongoose";
 
 const CASE_STATUSES = [
   "DRAFTING",
