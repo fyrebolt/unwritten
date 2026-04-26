@@ -35,19 +35,17 @@ const DEFAULT_AGENTS_URL =
 export async function runAgents(
   input: AgentsRunInput,
 ): Promise<AgentsRunResult | AgentsRunError> {
-  const fd = new FormData();
-  if (input.pdf) {
-    const blob = new Blob([new Uint8Array(input.pdf.buffer)], { type: "application/pdf" });
-    fd.append("file", blob, input.pdf.fileName);
-  }
-  if (input.message) fd.append("message", input.message);
-  if (input.voice) fd.append("voice", input.voice);
+  const composedInput = [input.message, input.voice].filter(Boolean).join("\n\n").trim();
+  const payload = {
+    input: composedInput,
+  };
 
   let res: Response;
   try {
     res = await fetch(`${DEFAULT_AGENTS_URL}/v1/intake`, {
       method: "POST",
-      body: fd,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
   } catch (err) {
     return {

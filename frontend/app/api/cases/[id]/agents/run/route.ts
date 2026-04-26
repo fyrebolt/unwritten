@@ -7,7 +7,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { getCase, setAppealResults } from "@/lib/db/cases";
-import { fetchPdfBuffer, runAgents } from "@/lib/agents/run";
+import { runAgents } from "@/lib/agents/run";
 import { serializeCase } from "@/lib/db/serialize";
 
 export const runtime = "nodejs";
@@ -25,7 +25,6 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     return NextResponse.json({ ok: false, error: "not-found" }, { status: 404 });
   }
 
-  const denialUrl = caseDoc.denialDocument?.cloudinaryUrl;
   const transcript = caseDoc.patientNarrative?.voiceTranscript;
   const facts = caseDoc.denialDocument?.extractedFacts;
 
@@ -42,29 +41,14 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
         .join("\n")
     : "";
 
-  let pdf: { buffer: Buffer; fileName: string } | undefined;
-  let pdfNote: string | undefined;
-  if (denialUrl) {
-    try {
-      const buf = await fetchPdfBuffer(denialUrl);
-      pdf = {
-        buffer: buf,
-        fileName: caseDoc.denialDocument?.fileName ?? "denial.pdf",
-      };
-    } catch (err) {
-      pdfNote = err instanceof Error ? err.message : String(err);
-    }
-  }
-
   const result = await runAgents({
-    pdf,
     message: factsLine || undefined,
     voice: transcript || undefined,
   });
 
   if (!result.ok) {
     return NextResponse.json(
-      { ok: false, error: result.error, pdfNote, rawResponse: result.rawResponse },
+      { ok: false, error: result.error, rawResponse: result.rawResponse },
       { status: 502 },
     );
   }
@@ -78,7 +62,6 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
 
   return NextResponse.json({
     ok: true,
-    pdfNote,
     case: updated ? serializeCase(updated) : null,
     result: {
       letter: result.letter,

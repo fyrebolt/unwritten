@@ -7,9 +7,16 @@ from dotenv import load_dotenv
 import json
 import requests
 
-load_dotenv()
-
 _AGENTS_DIR = Path(__file__).parent
+_ROOT_DIR = _AGENTS_DIR.parent
+_BACKEND_ENV = _ROOT_DIR / "backend" / ".env"
+_ROOT_ENV = _ROOT_DIR / ".env"
+
+# Load env from backend/.env first (team keeps keys there), then optional root .env.
+if _BACKEND_ENV.exists():
+    load_dotenv(_BACKEND_ENV)
+if _ROOT_ENV.exists():
+    load_dotenv(_ROOT_ENV, override=False)
 
 
 def run_system():
