@@ -17,8 +17,14 @@
   --rule: rgba(26, 26, 23, 0.14);
   --rule-faint: rgba(26, 26, 23, 0.07);
 
+  /* These reference the CSS variables Next.js sets via next/font:
+   *   - Instrument_Serif → --font-serif (layout.tsx sets variable: "--font-serif")
+   *   - GeistSans         → --font-geist-sans (geist/font/sans default)
+   * The literal name "Geist" is NOT a real font face; without the var()
+   * indirection the body silently falls back to system-ui, which is what
+   * made the editorial sans look "compressed". */
   --font-serif: "Instrument Serif", Georgia, serif;
-  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-sans: var(--font-geist-sans), "Inter", system-ui, sans-serif;
 }
 
 * {
