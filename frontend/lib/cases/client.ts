@@ -16,6 +16,16 @@ export type ClientCase = SerializedCase;
 
 type Json = Record<string, unknown>;
 
+function tryJsonParse(raw: string): Json | null {
+  const t = raw.trim();
+  if (!t || (t[0] !== "{" && t[0] !== "[")) return null;
+  try {
+    return JSON.parse(t) as Json;
+  } catch {
+    return null;
+  }
+}
+
 async function parseResponse<T extends Json>(
   res: Response,
   fallbackLabel: string,
@@ -27,8 +37,12 @@ async function parseResponse<T extends Json>(
     try {
       data = JSON.parse(raw) as Json;
     } catch {
-      data = null;
+      data = tryJsonParse(raw);
     }
+  } else {
+    // Some proxies or edge runtimes may strip or alter Content-Type. If the
+    // body is still JSON, parse it so we never reject a valid 201/200.
+    data = tryJsonParse(raw);
   }
   if (!res.ok || !data || data.ok === false) {
     const apiError = data && typeof data.error === "string" ? data.error : null;
@@ -90,6 +104,7 @@ export type CreateCaseInput = {
 export async function createCase(input: CreateCaseInput): Promise<ClientCase> {
   const res = await fetch("/api/cases", {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       title: composeTitle(input.extracted),
@@ -138,8 +153,15 @@ export type RunAgentsResponse = {
   };
 };
 
-export async function runAgents(caseId: string): Promise<RunAgentsResponse> {
-  const res = await fetch(`/api/cases/${caseId}/agents/run`, { method: "POST" });
+export async function runAgents(
+  caseId: string,
+  options?: { signal?: AbortSignal },
+): Promise<RunAgentsResponse> {
+  const res = await fetch(`/api/cases/${caseId}/agents/run`, {
+    method: "POST",
+    credentials: "include",
+    signal: options?.signal,
+  });
   const data = await parseResponse<RunAgentsResponse>(
     res,
     "Agents service couldn't run",

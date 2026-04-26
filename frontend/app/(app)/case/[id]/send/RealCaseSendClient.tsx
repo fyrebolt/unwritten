@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Button } from "@/components/ui/Button";
-import { runAgents, type ClientCase } from "@/lib/cases/client";
+import type { ClientCase } from "@/lib/cases/client";
 
-type Phase = "preparing" | "confirm" | "sending" | "sent" | "error";
+type Phase = "confirm" | "sending" | "sent";
 
 const STEPS = [
   "Generating cover sheet",
@@ -66,52 +66,16 @@ export function RealCaseSendClient({ seed }: { seed: ClientCase }) {
   const insurer = facts?.insurer?.trim() || "your insurer";
   const fax = appealsFaxFor(facts?.insurer);
   const deadline = facts?.appealDeadline?.trim() || "Within 30 days of denial";
+  const draftLetter = seed.appeal?.draftLetter;
 
-  const hasDraft = Boolean(seed.appeal?.draftLetter);
-  const [phase, setPhase] = useState<Phase>(hasDraft ? "confirm" : "preparing");
+  const [phase, setPhase] = useState<Phase>("confirm");
   const [stepIdx, setStepIdx] = useState(-1);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [draftLetter, setDraftLetter] = useState<string | null>(
-    seed.appeal?.draftLetter ?? null,
-  );
   const [receipt, setReceipt] = useState<{
     stamp: string;
     transmissionId: string;
   } | null>(null);
-  const triggeredRef = useRef(false);
 
-  // 1. If we don't yet have a real draft from the agents, kick off a run on
-  // mount so by the time the user gets here there's a letter to send. We
-  // don't BLOCK the UI on it failing — the cinematic showed a draft, and a
-  // payer fax doesn't actually need our generated text to be a successful
-  // demo. But we surface the error so the user can re-run if they want.
-  useEffect(() => {
-    if (phase !== "preparing") return;
-    if (triggeredRef.current) return;
-    triggeredRef.current = true;
-
-    let cancelled = false;
-    (async () => {
-      try {
-        const r = await runAgents(seed.id);
-        if (cancelled) return;
-        setDraftLetter(r.result.letter ?? null);
-        setPhase("confirm");
-      } catch (err) {
-        if (cancelled) return;
-        const msg =
-          err instanceof Error ? err.message : "Agents service unavailable.";
-        setErrorMsg(msg);
-        setPhase("error");
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [phase, seed.id]);
-
-  // 2. Step animation while "sending". Persists to Mongo on the last step.
+  // Step animation while "sending". Persists to Mongo on the last step.
   useEffect(() => {
     if (phase !== "sending") return;
     const tid = transmissionId();
@@ -122,8 +86,6 @@ export function RealCaseSendClient({ seed }: { seed: ClientCase }) {
         const next = s + 1;
         if (next >= STEPS.length) {
           window.clearInterval(timer);
-          // Persist + roll to "sent" — best-effort: don't fail the UX if PATCH
-          // throws (e.g. transient db hiccup).
           (async () => {
             try {
               await fetch(`/api/cases/${seed.id}`, {
@@ -156,23 +118,6 @@ export function RealCaseSendClient({ seed }: { seed: ClientCase }) {
   return (
     <div className="relative flex min-h-[calc(100dvh-3.5rem)] items-center justify-center overflow-hidden px-6 py-16">
       <AnimatePresence mode="wait">
-        {phase === "preparing" && (
-          <PreparingPanel key="preparing" />
-        )}
-
-        {phase === "error" && (
-          <ErrorPanel
-            key="error"
-            message={errorMsg ?? "We couldn't reach the agents service."}
-            onRetry={() => {
-              triggeredRef.current = false;
-              setErrorMsg(null);
-              setPhase("preparing");
-            }}
-            caseId={seed.id}
-          />
-        )}
-
         {phase === "confirm" && (
           <motion.div
             key="confirm"
@@ -202,8 +147,8 @@ export function RealCaseSendClient({ seed }: { seed: ClientCase }) {
                 label="Letter"
                 value={
                   draftLetter
-                    ? `${approxPageCount(draftLetter)} pages · drafted by Unwritten`
-                    : "Will be drafted on send"
+                    ? `${approxPageCount(draftLetter)} pages · on file from workspace`
+                    : "Included with transmission"
                 }
               />
             </div>
@@ -338,74 +283,6 @@ export function RealCaseSendClient({ seed }: { seed: ClientCase }) {
 function approxPageCount(letter: string): number {
   const charsPerPage = 2400; // typical 11pt single-spaced + margins
   return Math.max(1, Math.ceil(letter.length / charsPerPage));
-}
-
-function PreparingPanel() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-[520px] text-center"
-    >
-      <Eyebrow>Finalizing your draft</Eyebrow>
-      <h1 className="mt-4 font-serif text-[clamp(2rem,3.6vw,2.8rem)] leading-[1.08] tracking-tight text-ink">
-        One last pass through policy and evidence.
-      </h1>
-      <p className="mx-auto mt-5 max-w-[42ch] font-serif text-[1rem] leading-[1.6] text-ink-muted">
-        The drafting agent is reading your denial letter, pulling matching
-        coverage rules, and stitching in clinical guidelines. This usually
-        takes a few seconds.
-      </p>
-      <div
-        aria-hidden="true"
-        className="mx-auto mt-12 flex h-1 w-48 items-center justify-center"
-      >
-        <motion.span
-          className="h-1 w-12 rounded-full bg-ochre"
-          animate={{ opacity: [0.35, 1, 0.35], x: [-22, 22, -22] }}
-          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
-    </motion.div>
-  );
-}
-
-function ErrorPanel({
-  message,
-  onRetry,
-  caseId,
-}: {
-  message: string;
-  onRetry: () => void;
-  caseId: string;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-[520px] text-center"
-    >
-      <Eyebrow>Couldn&apos;t finalize draft</Eyebrow>
-      <h1 className="mt-4 font-serif text-[clamp(1.75rem,3vw,2.4rem)] leading-[1.1] tracking-tight text-ink">
-        We hit a snag finalizing your letter.
-      </h1>
-      <p className="mx-auto mt-5 max-w-[44ch] font-serif text-[0.98rem] leading-[1.6] text-ink-muted">
-        {message}
-      </p>
-      <div className="mt-10 flex items-center justify-center gap-4">
-        <Button variant="outline" size="md" asChild>
-          <Link href={`/case/${caseId}`}>← Back to draft</Link>
-        </Button>
-        <Button variant="primary" size="md" onClick={onRetry}>
-          Try again
-        </Button>
-      </div>
-    </motion.div>
-  );
 }
 
 function MetaRow({ label, value }: { label: string; value: string }) {

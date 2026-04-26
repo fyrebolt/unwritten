@@ -142,6 +142,7 @@ export function ConfirmStage({
             ← Back
           </button>
           <Button
+            type="button"
             variant="primary"
             size="lg"
             onClick={onConfirm}
