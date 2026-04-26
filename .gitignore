@@ -38,3 +38,6 @@ pnpm-debug.log*
 # Python
 __pycache__/
 *.pyc
+
+# uagents per-agent runtime state (auto-created next to run_bureau.py)
+agent1q*_data.json

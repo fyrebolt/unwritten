@@ -14,7 +14,6 @@ const SECTIONS = [
   { id: "agent-config", label: "Agent config" },
   { id: "notifications", label: "Notifications" },
   { id: "delivery", label: "Delivery" },
-  { id: "billing", label: "Billing" },
   { id: "danger", label: "Danger zone" },
 ] as const;
 
@@ -175,32 +174,6 @@ export function SettingsClient() {
               checked={config.delivery.copyToPatient}
               onChange={(v) => updateConfig("delivery", { copyToPatient: v })}
             />
-          </div>
-        </section>
-
-        <section id="billing" className="scroll-mt-24">
-          <Eyebrow>Billing</Eyebrow>
-          <h2 className="mt-3 font-serif text-[1.6rem] leading-[1.2] tracking-tight text-ink">
-            Advocate plan.
-          </h2>
-          <div className="mt-10 flex flex-col gap-6 border border-rule bg-paper p-8">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <p className="font-serif text-[1.2rem] text-ink">Advocate</p>
-                <p className="mt-1 font-sans text-[12px] text-ink-muted">
-                  10 appeals included · $149/mo
-                </p>
-              </div>
-              <p className="font-serif text-[1.1rem] text-ink">3 / 10 used</p>
-            </div>
-            <div className="h-px w-full bg-rule">
-              <span className="block h-px bg-ochre" style={{ width: "30%" }} />
-            </div>
-            <div className="flex justify-end">
-              <Button variant="outline" size="sm">
-                Manage plan
-              </Button>
-            </div>
           </div>
         </section>
 

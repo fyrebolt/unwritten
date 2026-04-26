@@ -259,22 +259,9 @@ export function VoiceStage({ onContinue }: { onContinue: (t: string) => void }) 
           In your own words — what happened?
         </h1>
         <p className="max-w-[44ch] font-serif text-[1.05rem] leading-[1.6] text-ink-muted">
-          In Chromium browsers (Chrome, Edge, Brave, …) we show live captions via Web Speech when the
-          browser supports it. We always keep a microphone recording; if there are no live captions or
-          they’re wrong, the server can transcribe the recording using open-source Whisper (
-          <code className="text-[11px] text-ink">LOCAL_WHISPER=1</code> per{" "}
-          <a
-            className="text-ochre underline decoration-ochre/40 underline-offset-2 hover:text-ink"
-            href="https://github.com/openai/whisper"
-            target="_blank"
-            rel="noreferrer"
-          >
-            openai/whisper
-          </a>
-          ) or the Whisper API (<code className="text-[11px] text-ink">OPENAI_API_KEY</code> in{" "}
-          <code className="text-[11px] text-ink">backend/.env</code>). Firefox skips live captions and relies
-          on that recording + Whisper, or <span className="text-ink">type instead</span>. Optional{" "}
-          <code className="text-[11px] text-ink">ANTHROPIC_API_KEY</code> polishes the transcript.
+          Tap record and tell us what happened — what was denied, what your
+          insurer said, anything else that matters. We&rsquo;ll transcribe it
+          for you, or you can type instead.
         </p>
         <button
           type="button"

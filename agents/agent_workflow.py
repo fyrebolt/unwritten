@@ -123,11 +123,30 @@ def _is_medication_denial(category: ServiceCategory) -> bool:
 
 
 # --------------------------------------------------------------------------- #
-# Gemini client
+# LLM client — Gemini primary, Anthropic Claude as automatic fallback
 # --------------------------------------------------------------------------- #
+#
+# The free-tier Gemini quota (20 req/min on gemini-2.5-flash) burns out in a
+# single demo case (intake + policy + evidence + drafter = 4 calls per user
+# request). When the quota fires we got HTTP 429 RESOURCE_EXHAUSTED, every
+# stage returned None, and the drafter shipped the deterministic placeholder
+# template ("[Member name on file]" etc.) — which is the letter the user
+# correctly called bullshit on.
+#
+# Fix: every LLM call now routes through `_call_llm`, which tries Gemini first
+# and transparently falls over to Claude (claude-haiku-4-5) if Gemini fails or
+# is rate-limited. Anthropic has a much higher free-tier ceiling and Haiku is
+# fast enough that the user-perceived latency is the same.
+#
+# Either provider produces real prose; the deterministic fallback templates
+# stay in place as a last resort if BOTH providers are down.
 
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
 GEMINI_TIMEOUT_S = (10, 90)  # connect / read
+
+ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_DRAFTER_MODEL", "claude-haiku-4-5")
+ANTHROPIC_TIMEOUT_S = (10, 90)
+ANTHROPIC_MAX_TOKENS = int(os.environ.get("ANTHROPIC_MAX_TOKENS", "1500"))
 
 
 def _gemini_endpoint() -> Optional[str]:
@@ -166,6 +185,63 @@ def _call_gemini(prompt: str) -> Optional[str]:
     except (IndexError, KeyError, TypeError):
         _log("gemini", "candidates missing content path")
         return None
+
+
+def _call_anthropic(prompt: str) -> Optional[str]:
+    """Call Claude once. Returns text response, or None on any failure."""
+    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        _log("claude", "skipped — ANTHROPIC_API_KEY missing")
+        return None
+    payload = {
+        "model": ANTHROPIC_MODEL,
+        "max_tokens": ANTHROPIC_MAX_TOKENS,
+        "messages": [{"role": "user", "content": prompt}],
+    }
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            json=payload,
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
+            },
+            timeout=ANTHROPIC_TIMEOUT_S,
+        )
+    except requests.RequestException as exc:
+        _log("claude", f"request error: {exc!r}")
+        return None
+    try:
+        data = resp.json()
+    except ValueError:
+        _log("claude", f"non-JSON response (status {resp.status_code})")
+        return None
+    if resp.status_code != 200:
+        msg = (data.get("error") or {}).get("message", "unknown")
+        _log("claude", f"http {resp.status_code} ({msg!r})")
+        return None
+    try:
+        # content is a list of blocks; first text block holds the response
+        for block in data.get("content", []):
+            if block.get("type") == "text" and block.get("text"):
+                return block["text"]
+    except (AttributeError, TypeError):
+        pass
+    _log("claude", "no text block in response")
+    return None
+
+
+def _call_llm(prompt: str, *, stage: str) -> Optional[str]:
+    """Try Gemini, then Claude. Returns the first non-empty response."""
+    out = _call_gemini(prompt)
+    if out and out.strip():
+        return out
+    out = _call_anthropic(prompt)
+    if out and out.strip():
+        _log(stage, "used Claude fallback (Gemini unavailable)")
+        return out
+    return None
 
 
 def _parse_json_object(text: str) -> Optional[dict]:
@@ -236,6 +312,17 @@ def _normalize_case_data(case_data: dict) -> dict:
         or case_data.get("condition")
         or case_data.get("diagnosis")
     )
+    member_name = (
+        case_data.get("member_name")
+        or case_data.get("memberName")
+        or case_data.get("patient_name")
+    )
+    member_id = case_data.get("member_id") or case_data.get("memberId")
+    letter_date = (
+        case_data.get("letter_date")
+        or case_data.get("letterDate")
+        or case_data.get("date")
+    )
     category = case_data.get("service_category") or case_data.get("category")
     if category not in CATEGORIES:
         category = _classify_service(service or "", reason or "")
@@ -244,6 +331,9 @@ def _normalize_case_data(case_data: dict) -> dict:
         "service_denied": (service or "").strip() or None,
         "denial_reason": (reason or "").strip() or None,
         "patient_condition": (condition or "").strip() or None,
+        "member_name": (member_name or "").strip() or None,
+        "member_id": (member_id or "").strip() or None,
+        "letter_date": (letter_date or "").strip() or None,
         "service_category": category,
     }
 
@@ -260,7 +350,7 @@ def _intake(user_input: str, case_data: Optional[dict]) -> dict:
         return _normalize_case_data({})
 
     prompt = f"{_INTAKE_SYSTEM}\n\nINPUT:\n{user_input}"
-    raw = _call_gemini(prompt)
+    raw = _call_llm(prompt, stage="intake")
     parsed = _parse_json_object(raw or "")
     if not parsed:
         normalized = _normalize_case_data({})
@@ -307,7 +397,7 @@ def _policy(case: dict) -> dict:
         f"denial_reason: {reason}\n"
         f"service_category: {category}\n"
     )
-    raw = _call_gemini(prompt)
+    raw = _call_llm(prompt, stage="policy")
     parsed = _parse_json_object(raw or "")
     if parsed and isinstance(parsed.get("finding"), str) and parsed["finding"].strip():
         finding = parsed["finding"].strip()
@@ -318,7 +408,7 @@ def _policy(case: dict) -> dict:
         return {"finding": finding, "relevance_reason": relevance, "fallback": False}
 
     fallback = _policy_fallback(case)
-    _log("policy", f"fallback used (gemini failed) category={category}")
+    _log("policy", f"fallback used (LLM unavailable) category={category}")
     return fallback
 
 
@@ -360,6 +450,138 @@ def _scrub_medication_terms(text: str) -> str:
     return out
 
 
+# Any bracketed placeholder the drafter shouldn't have produced. Even when we
+# tell the LLM "do not use brackets", it sometimes still does — so we sweep
+# the output and either drop the line entirely (if the placeholder was the
+# whole line) or rephrase the surrounding sentence (if it was inline).
+#
+# Each phrase becomes `word1[\s_-]+word2[...]` so single/double spaces,
+# underscores, and hyphens between words all match the same alternation.
+_PLACEHOLDER_PHRASES = (
+    "address block",
+    "full name",
+    "your name",
+    "patient name",
+    "member name",
+    "sender name",
+    "member address",
+    "sender address",
+    "patient address",
+    "date",
+    "todays date",
+    "today s date",
+    "current date",
+    "claim number",
+    "member id",
+    "policy number",
+    "information on file",
+    "info on file",
+    "on file",
+    "patient condition",
+    "diagnosis",
+    "redacted",
+)
+
+
+def _phrase_to_regex(phrase: str) -> str:
+    words = phrase.split()
+    return r"[\s_\-]*".join(re.escape(w) for w in words)
+
+
+_PLACEHOLDER_PATTERN = re.compile(
+    r"\[\s*(?:" + "|".join(_phrase_to_regex(p) for p in _PLACEHOLDER_PHRASES) + r")\s*\]",
+    re.IGNORECASE,
+)
+
+# When an inline placeholder gets removed mid-sentence, the surrounding text
+# may end up with patterns like "prescribed for ." or "diagnosed with ,".
+# These are tightly-scoped fixes that ONLY operate on the dangling residue
+# next to where a placeholder used to be — they never touch normal prose.
+_DANGLING_RESIDUE_PATTERNS = [
+    # "prescribed for ." / "prescribed for ," → "prescribed for the
+    # underlying condition."
+    (
+        re.compile(r"\bprescribed for\s+([.,;:])", re.IGNORECASE),
+        r"prescribed as part of my treatment plan\1",
+    ),
+    # "diagnosed with ." → "under active treatment."
+    (
+        re.compile(r"\bdiagnosed with\s+([.,;:])", re.IGNORECASE),
+        r"under active treatment\1",
+    ),
+    # "treatment of ." / "treatment for ," → "treatment of the underlying
+    # condition."
+    (
+        re.compile(r"\btreatment (?:of|for)\s+([.,;:])", re.IGNORECASE),
+        r"treatment of the underlying condition\1",
+    ),
+    # "documented ." → "documented condition." (covers "documented [patient
+    # condition].")
+    (
+        re.compile(r"\bdocumented\s+([.,;:])", re.IGNORECASE),
+        r"documented condition\1",
+    ),
+    # Bare "for" / "with" left at end of line: "...prescribed for".
+    (
+        re.compile(r"\b(prescribed|diagnosed|treated)\s+(?:for|with)\s*$", re.IGNORECASE | re.MULTILINE),
+        r"\1 as part of my care plan",
+    ),
+    # "presenting with when..." / "patients with who..." — placeholder was
+    # excised between a preposition and a subordinator. Drop the dangling
+    # preposition.
+    (
+        re.compile(r"\b(?:with|for|of)\s+(when|where|after|before|that|who|whose|which)\b", re.IGNORECASE),
+        r"\1",
+    ),
+    # "for the patient's ." — possessive left dangling after the noun was
+    # removed.
+    (
+        re.compile(r"\b(?:my|the patient's|the member's)\s+([.,;:])", re.IGNORECASE),
+        r"the documented condition\1",
+    ),
+    # Stranded space + punctuation: " ." → "." and " ," → ","
+    (re.compile(r"\s+([.,;:])"), r"\1"),
+    # Doubled punctuation: ".." → "."
+    (re.compile(r"([.,;:]){2,}"), r"\1"),
+    # Multiple internal spaces → single (LINE-LOCAL only — does NOT touch
+    # newlines, since `[ \t]` doesn't match `\n`).
+    (re.compile(r"[ \t]{2,}"), " "),
+    # Trailing whitespace per line.
+    (re.compile(r"[ \t]+$", re.MULTILINE), ""),
+]
+
+
+def _normalize_placeholders(text: str) -> str:
+    """Strip every bracketed placeholder and clean up the residue.
+
+    Three passes:
+      1. Drop lines whose entire content is a placeholder (e.g. an
+         `[ADDRESS BLOCK]` line on its own).
+      2. Strip inline placeholders from remaining sentences (replace with
+         empty string).
+      3. Apply dangling-residue fixes around where placeholders used to be —
+         these only touch text immediately adjacent to deletion sites and
+         never rewrite normal prose. Newlines are preserved.
+    """
+    out_lines: list[str] = []
+    for line in text.splitlines():
+        # If the line is JUST a placeholder (allowing surrounding whitespace),
+        # drop it entirely.
+        if _PLACEHOLDER_PATTERN.fullmatch(line.strip()):
+            continue
+        out_lines.append(line)
+    cleaned = "\n".join(out_lines)
+
+    cleaned = _PLACEHOLDER_PATTERN.sub("", cleaned)
+    for pat, repl in _DANGLING_RESIDUE_PATTERNS:
+        cleaned = pat.sub(repl, cleaned)
+
+    # Collapse 3+ consecutive newlines down to a double-newline so the
+    # surrounding paragraph spacing stays normal after we drop a line.
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned.strip() + "\n"
+
+
 # --------------------------------------------------------------------------- #
 # Stage 3 — Evidence
 # --------------------------------------------------------------------------- #
@@ -392,7 +614,7 @@ def _evidence(case: dict) -> dict:
         f"service_category: {category}\n"
         f"patient_condition: {condition}\n"
     )
-    raw = _call_gemini(prompt)
+    raw = _call_llm(prompt, stage="evidence")
     parsed = _parse_json_object(raw or "")
     if parsed and isinstance(parsed.get("finding"), str) and parsed["finding"].strip():
         finding = parsed["finding"].strip()
@@ -403,7 +625,7 @@ def _evidence(case: dict) -> dict:
         return {"finding": finding, "relevance_reason": relevance, "fallback": False}
 
     fallback = _evidence_fallback(case)
-    _log("evidence", f"fallback used (gemini failed) category={category}")
+    _log("evidence", f"fallback used (LLM unavailable) category={category}")
     return fallback
 
 
@@ -430,28 +652,52 @@ _DRAFTER_INSTRUCTIONS = """You are drafting a real insurance appeal letter for a
 
 Follow these rules strictly:
 - Use ONLY the facts provided. Do not invent claim numbers, member IDs,
-  policy bulletin numbers, dates, or specific medication names not given.
-- If a required fact is unknown, write "[information on file]" — do NOT
-  write "[Your Name]", "[Date]", or generic placeholder text.
+  policy bulletin numbers, or specific medication names not given.
+- The KNOWN FACTS section gives you the member's name, the letter date, and
+  the insurer name. USE THEM VERBATIM. Do NOT replace them with placeholders.
+- For UNKNOWN facts (listed below), DO NOT write a placeholder of any kind.
+  No `[ADDRESS BLOCK]`, no `[Date]`, no `[Your Name]`, no
+  `[information on file]`, no brackets at all. Instead:
+    * If the field is a structural element (address line, claim number),
+      OMIT THE LINE ENTIRELY.
+    * If the field is referenced inline in a sentence (e.g. patient
+      condition), REPHRASE the sentence so the missing field isn't needed.
+      For example: instead of "prescribed for [information on file]",
+      write "prescribed as part of my treatment plan".
 - Do not introduce medication policy language unless service_category is
   "medication".
 - Keep it concise: ~250-400 words. Standard business-letter format.
-- Sections: address block, date, RE line with insurer + service, salutation,
-  1-2 paragraphs of argument tying the policy + evidence findings to the
-  denial reason, request for overturn, signature.
+- Sections, in order (omit any line whose data is unknown):
+    1. Member name on first line (use known value)
+    2. Member address line — OMIT entirely if unknown
+    3. Blank line
+    4. The letter date (use the date provided in KNOWN FACTS)
+    5. Blank line
+    6. Insurer name and "Appeals Department" — no insurer address line
+    7. Blank line
+    8. RE line: `RE: Appeal of denied claim — <service>`
+    9. Blank line
+   10. Salutation
+   11. 1–2 paragraphs of argument tying policy + evidence to denial reason
+   12. Request for overturn
+   13. Sign-off with member name on last line
 
-Output ONLY the letter text — no markdown fences, no preamble.
+Output ONLY the letter text — no markdown fences, no preamble, no brackets.
 """
 
 
 def _draft(case: dict, policy_finding: dict, evidence_finding: dict) -> dict:
-    insurer = case.get("insurer") or "[insurer name]"
+    insurer = case.get("insurer") or "[information on file]"
     service = case.get("service_denied") or "the requested service"
-    reason = case.get("denial_reason") or "[denial reason]"
-    condition = case.get("patient_condition") or "[patient condition]"
+    reason = case.get("denial_reason") or "[information on file]"
+    condition = case.get("patient_condition") or "[information on file]"
+    member_name = case.get("member_name") or "[information on file]"
+    letter_date = case.get("letter_date") or time.strftime("%B %d, %Y")
     category = case.get("service_category", "other")
 
     known_lines = [
+        f"- member_name: {member_name}",
+        f"- letter_date: {letter_date}",
         f"- insurer: {insurer}",
         f"- service_denied: {service}",
         f"- denial_reason: {reason}",
@@ -469,23 +715,30 @@ def _draft(case: dict, policy_finding: dict, evidence_finding: dict) -> dict:
         unknown_lines.append("- denial reason")
     if case.get("patient_condition") is None:
         unknown_lines.append("- patient condition")
+    if case.get("member_name") is None:
+        unknown_lines.append("- member name")
+    # Member address is never auto-filled — flag it as unknown explicitly so
+    # the drafter doesn't invent an [ADDRESS BLOCK] placeholder.
+    unknown_lines.append("- member address")
 
     prompt = (
         f"{_DRAFTER_INSTRUCTIONS}\n\nKNOWN FACTS:\n" + "\n".join(known_lines) +
-        ("\n\nUNKNOWN FACTS (use [information on file] in their place):\n"
+        ("\n\nUNKNOWN FACTS (use the literal string `[information on file]` "
+         "in their place):\n"
          + "\n".join(unknown_lines) if unknown_lines else "")
         + "\n\nWrite the letter now."
     )
-    text = _call_gemini(prompt)
+    text = _call_llm(prompt, stage="draft")
     if text and text.strip():
         cleaned = text.strip()
         if not _is_medication_denial(category):
             cleaned = _scrub_medication_terms(cleaned)
-        _log("draft", f"gemini ok chars={len(cleaned)}")
+        cleaned = _normalize_placeholders(cleaned)
+        _log("draft", f"LLM ok chars={len(cleaned)}")
         return {"text": cleaned, "fallback": False}
 
     fallback_text = _draft_fallback(case, policy_finding, evidence_finding)
-    _log("draft", f"fallback used chars={len(fallback_text)}")
+    _log("draft", f"fallback used (both LLMs unavailable) chars={len(fallback_text)}")
     return {"text": fallback_text, "fallback": True}
 
 

@@ -21,7 +21,7 @@ export function AgentFeed({
       <div className="flex items-baseline justify-between">
         <Eyebrow>Agent activity</Eyebrow>
         <span className="font-sans text-[10px] uppercase tracking-[0.22em] text-ink-faint">
-          {done ? "Complete" : `${elapsed.toFixed(1)}s`}
+          {done ? "Complete" : "Running"}
         </span>
       </div>
 

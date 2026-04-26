@@ -12,6 +12,23 @@ export type AgentsRunInput = {
   pdf?: { buffer: Buffer; fileName: string };
   message?: string;
   voice?: string;
+  /**
+   * Pre-extracted, structured case facts. When provided, the Python intake
+   * stage skips its Gemini re-parse and uses these values directly — saves a
+   * Gemini call and, more importantly, prevents the entire pipeline from
+   * collapsing into placeholders when Gemini is rate-limited or the input
+   * blob is empty.
+   */
+  caseData?: {
+    insurer?: string | null;
+    service_denied?: string | null;
+    denial_reason?: string | null;
+    patient_condition?: string | null;
+    member_id?: string | null;
+    member_name?: string | null;
+    /** ISO or human-readable date string the drafter should use as the letter date. */
+    letter_date?: string | null;
+  };
 };
 
 export type AgentsRunResult = {
@@ -38,9 +55,21 @@ export async function runAgents(
   input: AgentsRunInput,
 ): Promise<AgentsRunResult | AgentsRunError> {
   const composedInput = [input.message, input.voice].filter(Boolean).join("\n\n").trim();
-  const payload = {
+  // Strip null/empty values from caseData so the Python normalizer treats them
+  // as "unknown" rather than the literal string "null" / "".
+  const caseData = input.caseData
+    ? Object.fromEntries(
+        Object.entries(input.caseData).filter(
+          ([, v]) => typeof v === "string" && v.trim().length > 0,
+        ),
+      )
+    : undefined;
+  const payload: Record<string, unknown> = {
     input: composedInput,
   };
+  if (caseData && Object.keys(caseData).length > 0) {
+    payload.case_data = caseData;
+  }
 
   let res: Response;
   try {

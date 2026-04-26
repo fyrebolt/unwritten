@@ -11,7 +11,7 @@
  * draft stage on cold cache).
  */
 import { NextResponse } from "next/server";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { getCase, setAppealResults } from "@/lib/db/cases";
 import { runAgents } from "@/lib/agents/run";
 import { serializeCase } from "@/lib/db/serialize";
@@ -47,6 +47,20 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
   if (!caseDoc) return jsonError(404, "not-found");
 
   // 3. Compose context for agents — extracted facts + voice transcript.
+  // Pull the Clerk profile so we can pre-fill the member name in the letter
+  // instead of leaving an "[information on file]" placeholder. Failures are
+  // non-fatal — the letter still renders without it.
+  let memberName: string | undefined;
+  try {
+    const cu = await currentUser();
+    memberName =
+      cu?.fullName?.trim() ||
+      [cu?.firstName, cu?.lastName].filter(Boolean).join(" ").trim() ||
+      cu?.username?.trim() ||
+      undefined;
+  } catch (err) {
+    console.warn("[agents/run] currentUser failed, name will be omitted:", err);
+  }
   const transcript = caseDoc.patientNarrative?.voiceTranscript;
   const facts = caseDoc.denialDocument?.extractedFacts;
   const cloudinaryMissing = !caseDoc.denialDocument?.cloudinaryUrl;
@@ -72,12 +86,29 @@ export async function POST(_req: Request, { params }: { params: { id: string } }
     }),
   );
 
-  // 4. Call agents service
+  // 4. Call agents service. We send BOTH the flattened message (for the LLM
+  // intake stage to read as narrative context) AND the structured facts as
+  // case_data — the Python pipeline uses case_data to skip its intake-Gemini
+  // re-parse, so the drafter gets real values like "Aetna" / "MRI knee" even
+  // if Gemini is rate-limited or the narrative blob is sparse.
   let result;
   try {
     result = await runAgents({
       message: factsLine || undefined,
       voice: transcript || undefined,
+      caseData: {
+        insurer: facts?.insurer ?? null,
+        service_denied: facts?.serviceDenied ?? null,
+        denial_reason: facts?.denialReasonText ?? null,
+        member_id: facts?.memberId ?? null,
+        // Pre-known facts the LLM should NEVER placeholder-out.
+        member_name: memberName ?? null,
+        letter_date: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      },
     });
   } catch (err) {
     console.error("[agents/run] runAgents threw:", err);

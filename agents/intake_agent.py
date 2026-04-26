@@ -8,6 +8,7 @@ from uagents_core.contrib.protocols.chat import (
     ChatMessage,
     TextContent,
     ChatAcknowledgement,
+    EndSessionContent,
     chat_protocol_spec,
 )
 from dotenv import load_dotenv
@@ -100,7 +101,13 @@ def _reset_state(ctx: Context):
     ctx.storage.set("drafter_sent", False)
 
 
-@chat_proto.on_message(model=ChatMessage, replies={ChatAcknowledgement})
+@chat_proto.on_message(model=ChatAcknowledgement)
+async def handle_chat_ack(ctx: Context, sender: str, msg: ChatAcknowledgement):
+    # Required by AgentChatProtocol:0.3.0 spec; we ignore acks of our own messages.
+    pass
+
+
+@chat_proto.on_message(model=ChatMessage)
 async def start_orchestration(ctx: Context, sender: str, msg: ChatMessage):
     ctx.logger.info("Received message from ASI:One")
 
@@ -164,8 +171,14 @@ async def _check_if_ready(ctx: Context):
 async def handle_final_letter(ctx: Context, sender: str, msg: FinalLetter):
     human = ctx.storage.get("human_user")
     _reset_state(ctx)
+    # Deliver the letter and end the chat session in a single envelope so the
+    # caller (BridgeAgent / ASI:One) knows the orchestration is complete.
     await ctx.send(human, ChatMessage(content=[
-        TextContent(type="text", text=f"**Your Custom Appeal Letter is Ready:**\n\n{msg.letter_body}")
+        TextContent(
+            type="text",
+            text=f"**Your Custom Appeal Letter is Ready:**\n\n{msg.letter_body}",
+        ),
+        EndSessionContent(type="end-session"),
     ]))
 
 

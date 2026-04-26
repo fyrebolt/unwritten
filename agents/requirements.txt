@@ -1,16 +1,29 @@
 # Python dependencies for the Unwritten agents service.
 #
-# Install:
-#   cd agents
-#   python3 -m venv .venv
-#   source .venv/bin/activate
-#   pip install -r requirements.txt
+# Install (from a venv outside /Users/<you>/Desktop/ — see note below):
+#   python3 -m venv ~/.unwritten-venv
+#   PYTHONPATH= ~/.unwritten-venv/bin/pip install -r agents/requirements.txt
+#
+# IMPORTANT: macOS denies pip access to ~/Desktop, so a venv inside Desktop
+# fails. Putting it at ~/.unwritten-venv avoids the TCC privacy block.
+# The PYTHONPATH= prefix prevents shell-exported PYTHONPATH from leaking the
+# Desktop path back into pip's environment scan.
 #
 # Run:
-#   python -m agents.main_api    # starts the HTTP API on :8788
+#   pnpm dev:bureau       # starts all 5 uagents on a local Bureau (port 8200)
+#   pnpm dev:agents-api   # starts the HTTP bridge on :8788
 #
-# The agents service reads GEMINI_API_KEY from backend/.env (see
-# agent_workflow.py — it loads backend/.env first, then root .env).
+# The HTTP bridge dispatches to the BridgeAgent (in the Bureau) via
+# uagents.query.send_sync_message, which then proxies into the
+# Intake → Policy/Evidence → Drafter chat-protocol flow and returns the
+# appeal letter. See agents/main_api.py and agents/bridge_agent.py.
+#
+# Env (loaded from backend/.env then root .env):
+#   GEMINI_API_KEY        required (intake classification + drafter)
+#   AGENTVERSE_API_KEY    optional (only for public Agentverse registration)
 
+uagents>=0.24,<1
+uagents-core>=0.4,<1
 requests>=2.32,<3
 python-dotenv>=1.0,<2
+pypdf>=6.0,<7

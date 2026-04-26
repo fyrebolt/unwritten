@@ -144,28 +144,8 @@ export function UploadStage({
           Start with the denial letter.
         </h1>
         <p className="max-w-[44ch] font-serif text-[1.05rem] leading-[1.6] text-ink-muted">
-          PDFs upload to Cloudinary, then our API reads the text and fills insurer, member ID,
-          service denied, and deadlines. Images use vision when{" "}
-          <code className="text-[11px] text-ink">OPENAI_API_KEY</code> is set on the API.
-        </p>
-        {!cloudinaryReady && (
-          <p className="max-w-[50ch] font-sans text-[12px] leading-relaxed text-ink-muted">
-            Cloudinary is optional: without{" "}
-            <code className="text-[11px] text-ink">NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET</code>{" "}
-            we still parse the file locally via the API.
-          </p>
-        )}
-        <p className="max-w-[50ch] font-sans text-[11px] leading-relaxed text-ink-faint">
-          Cloudinary hackathon:{" "}
-          <a
-            href="https://cloudinary.com/pages/hackathons/"
-            className="text-ochre underline-offset-2 hover:underline"
-            target="_blank"
-            rel="noreferrer"
-          >
-            cloudinary.com/pages/hackathons
-          </a>
-          — media delivery + this intake pipeline.
+          Drop in a PDF or image of the denial. We&rsquo;ll pull out the
+          insurer, member ID, service denied, and any deadlines.
         </p>
         <button
           type="button"

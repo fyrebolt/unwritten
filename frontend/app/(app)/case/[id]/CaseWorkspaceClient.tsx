@@ -7,7 +7,7 @@ import { workspaceScript } from "@/lib/mock/agents";
 import { agentFocusSchedule } from "@/lib/mock/denial";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import type { ClientCase } from "@/lib/cases/client";
+import { runAgents, type ClientCase } from "@/lib/cases/client";
 import { AgentFeed } from "./panels/AgentFeed";
 import { DenialViewer } from "./panels/DenialViewer";
 import { LiveLetter } from "./panels/LiveLetter";
@@ -25,10 +25,23 @@ export function CaseWorkspaceClient({
   seed?: ClientCase;
 }) {
   const [elapsed, setElapsed] = useState(0);
-  const [done, setDone] = useState(false);
+  const [animDone, setAnimDone] = useState(false);
+  // For real Mongo-backed cases we ALSO need the Python agent pipeline to
+  // actually finish before the user is allowed to move on to /send. For
+  // simulation-only cases (no `seed`), we just gate on the cinematic timer.
+  const [agentsDone, setAgentsDone] = useState<boolean>(
+    Boolean(seed?.appeal?.draftLetter),
+  );
+  // The real letter from the agent pipeline. Stays null until agents return,
+  // then drives the LiveLetter panel — no mock content, no hardcoded text.
+  const [draftLetter, setDraftLetter] = useState<string | null>(
+    seed?.appeal?.draftLetter ?? null,
+  );
   const [configOpen, setConfigOpen] = useState(false);
   const startRef = useRef<number | null>(null);
+  const agentsKickedRef = useRef(false);
   const isReal = Boolean(seed);
+  const done = isReal ? animDone && agentsDone : animDone;
 
   useEffect(() => {
     let raf = 0;
@@ -37,7 +50,7 @@ export function CaseWorkspaceClient({
       const e = (ts - startRef.current) / 1000;
       setElapsed(e);
       if (e >= SIMULATION_SECONDS) {
-        setDone(true);
+        setAnimDone(true);
         return;
       }
       raf = requestAnimationFrame(loop);
@@ -45,6 +58,27 @@ export function CaseWorkspaceClient({
     raf = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(raf);
   }, []);
+
+  // Fire the real agent pipeline in parallel with the cinematic so the ~30s
+  // Gemini chain runs while the 20s animation is playing, instead of after
+  // the user clicks through. We don't surface errors here — `/send` re-runs
+  // and shows them if the draft isn't ready by the time the user lands there.
+  useEffect(() => {
+    if (!seed) return;
+    if (seed.appeal?.draftLetter) return;
+    if (agentsKickedRef.current) return;
+    agentsKickedRef.current = true;
+    runAgents(seed.id)
+      .then((r) => {
+        if (r.result?.letter) setDraftLetter(r.result.letter);
+      })
+      .catch(() => {
+        // Swallow — /send will retry and show its own error UI.
+      })
+      .finally(() => {
+        setAgentsDone(true);
+      });
+  }, [seed]);
 
   const visibleEvents = useMemo(
     () => workspaceScript.filter((e) => e.atSeconds <= elapsed),
@@ -73,10 +107,6 @@ export function CaseWorkspaceClient({
     return null;
   }, [elapsed]);
 
-  const draftingStart = 12.4;
-  const letterProgress = Math.max(0, elapsed - draftingStart);
-  const typingDuration = Math.max(0.5, SIMULATION_SECONDS - draftingStart);
-
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
       <header className="flex items-center justify-between border-b border-rule px-6 py-5 md:px-10 lg:px-14">
@@ -91,11 +121,6 @@ export function CaseWorkspaceClient({
           <Button variant="ghost" size="sm" onClick={() => setConfigOpen(true)}>
             Agent config
           </Button>
-          {isReal && (
-            <Button variant="ghost" size="sm" asChild>
-              <Link href={`/case/${caseId}/live`}>Live agents →</Link>
-            </Button>
-          )}
           <Button variant="primary" size="sm" asChild>
             <Link
               // Real cases skip the legacy review/debug pages and go straight
@@ -130,13 +155,7 @@ export function CaseWorkspaceClient({
           <DenialViewer focus={currentFocus} done={done} />
         </div>
         <div className="min-h-[600px] overflow-y-auto px-6 py-8 lg:px-8">
-          <LiveLetter
-            startAt={draftingStart}
-            elapsed={elapsed}
-            letterProgress={letterProgress}
-            done={done}
-            typingDuration={typingDuration}
-          />
+          <LiveLetter letter={draftLetter} done={done} />
         </div>
       </div>
 

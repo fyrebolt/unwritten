@@ -8,6 +8,8 @@
     "dev": "npx -y pnpm@10.33.2 --parallel --filter=frontend --filter=backend dev",
     "dev:frontend": "npx -y pnpm@10.33.2 --filter=frontend dev",
     "dev:backend": "npx -y pnpm@10.33.2 --filter=backend dev",
+    "dev:bureau": "PYTHONPATH= ~/.unwritten-venv/bin/python -u -m agents.run_bureau",
+    "dev:agents-api": "PYTHONPATH= ~/.unwritten-venv/bin/python -u -m agents.main_api",
     "build": "npx -y pnpm@10.33.2 --recursive build",
     "typecheck": "npx -y pnpm@10.33.2 --recursive typecheck",
     "lint": "npx -y pnpm@10.33.2 --recursive lint"
