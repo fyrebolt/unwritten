@@ -75,6 +75,7 @@ export function CaseWorkspaceClient({
 
   const draftingStart = 12.4;
   const letterProgress = Math.max(0, elapsed - draftingStart);
+  const typingDuration = Math.max(0.5, SIMULATION_SECONDS - draftingStart);
 
   return (
     <div className="flex min-h-[calc(100dvh-3.5rem)] flex-col">
@@ -97,7 +98,15 @@ export function CaseWorkspaceClient({
           )}
           <Button variant="primary" size="sm" asChild>
             <Link
-              href={done ? `/case/${caseId}/review` : "#"}
+              // Real cases skip the legacy review/debug pages and go straight
+              // into the editorial fax-confirmation flow — the agents already
+              // finished drafting in the cinematic, so the next user action is
+              // "send", not "review again".
+              href={
+                done
+                  ? `/case/${caseId}/${isReal ? "send" : "review"}`
+                  : "#"
+              }
               aria-disabled={!done}
               onClick={(e) => !done && e.preventDefault()}
               className={done ? "" : "pointer-events-none opacity-40"}
@@ -126,6 +135,7 @@ export function CaseWorkspaceClient({
             elapsed={elapsed}
             letterProgress={letterProgress}
             done={done}
+            typingDuration={typingDuration}
           />
         </div>
       </div>

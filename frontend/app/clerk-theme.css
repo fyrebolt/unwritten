@@ -1,0 +1,357 @@
+/* ============================================================================
+ * Clerk theme overrides — editorial / hairline / paper-and-ink.
+ *
+ * Why a stylesheet (and not just appearance.elements):
+ *   Clerk in v6 ships its own scoped CSS that wins on specificity over the
+ *   Tailwind classes we pass via appearance.elements. To produce the editorial
+ *   look (no rounded card, no drop shadow, hairline inputs, serif heading) we
+ *   override the stable .cl-* class names here. Selectors are intentionally
+ *   nested under .cl-rootBox to bump specificity above Clerk's own rules
+ *   without sprinkling !important on every property.
+ *
+ * Tokens come from globals.css:
+ *   --paper / --paper-deep / --ink / --ink-muted / --ink-faint
+ *   --ochre / --ochre-soft / --rule / --rule-faint
+ *   --font-serif / --font-sans
+ * ========================================================================== */
+
+/* --- Card / container reset ---------------------------------------------- */
+.cl-rootBox,
+.cl-rootBox .cl-cardBox,
+.cl-rootBox .cl-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+.cl-rootBox .cl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 2.25rem;
+}
+
+.cl-rootBox .cl-main {
+  gap: 1.5rem;
+}
+
+/* --- Header --------------------------------------------------------------- */
+.cl-rootBox .cl-header {
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  gap: 0.6rem;
+}
+
+.cl-rootBox .cl-headerTitle {
+  font-family: var(--font-serif), Georgia, serif !important;
+  font-weight: 400 !important;
+  font-size: clamp(1.85rem, 2.4vw, 2.25rem) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink) !important;
+  text-align: left !important;
+}
+
+.cl-rootBox .cl-headerSubtitle {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  letter-spacing: 0.04em;
+  color: var(--ink-muted) !important;
+  text-align: left !important;
+  margin-top: 0.15rem;
+}
+
+/* --- Eyebrow above heading (synthetic) ---------------------------------- */
+.cl-rootBox .cl-header::before {
+  content: "Unwritten · Identity";
+  display: block;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 0.75rem;
+}
+
+/* --- Social / OAuth buttons --------------------------------------------- */
+.cl-rootBox .cl-socialButtons {
+  gap: 0.75rem;
+}
+
+.cl-rootBox .cl-socialButtonsBlockButton,
+.cl-rootBox .cl-socialButtonsIconButton {
+  border: 1px solid var(--rule) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: 48px !important;
+  padding: 0 1rem !important;
+  transition:
+    border-color 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cl-rootBox .cl-socialButtonsBlockButton:hover {
+  border-color: var(--ochre) !important;
+  background: transparent !important;
+}
+
+.cl-rootBox .cl-socialButtonsBlockButtonText,
+.cl-rootBox .cl-socialButtonsBlockButton__google {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 11px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+}
+
+/* --- Divider ("OR") ------------------------------------------------------ */
+.cl-rootBox .cl-dividerRow {
+  margin: 0.25rem 0;
+}
+
+.cl-rootBox .cl-dividerLine {
+  background: var(--rule) !important;
+  height: 1px !important;
+}
+
+.cl-rootBox .cl-dividerText {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 10px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--ink-faint) !important;
+}
+
+/* --- Form layout --------------------------------------------------------- */
+.cl-rootBox .cl-form {
+  gap: 1.4rem;
+}
+
+.cl-rootBox .cl-formFieldRow {
+  gap: 1.25rem;
+}
+
+.cl-rootBox .cl-formField {
+  gap: 0.4rem;
+}
+
+.cl-rootBox .cl-formFieldLabel,
+.cl-rootBox .cl-formFieldLabelRow {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 10px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: var(--ink-muted) !important;
+  font-weight: 500 !important;
+}
+
+.cl-rootBox .cl-formFieldHintText,
+.cl-rootBox .cl-formFieldRequiredHint,
+.cl-rootBox .cl-formFieldAction {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 10px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--ink-faint) !important;
+  font-weight: 400 !important;
+}
+
+.cl-rootBox .cl-formFieldAction {
+  color: var(--ochre) !important;
+}
+
+/* --- Inputs (hairline-bottom only) -------------------------------------- */
+.cl-rootBox .cl-formFieldInput,
+.cl-rootBox .cl-formFieldInputShowPasswordButton {
+  background: transparent !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.55rem 0 !important;
+  height: auto !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 15px !important;
+  color: var(--ink) !important;
+  transition: border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cl-rootBox .cl-formFieldInput::placeholder {
+  color: var(--ink-faint) !important;
+  opacity: 1 !important;
+}
+
+.cl-rootBox .cl-formFieldInput:focus,
+.cl-rootBox .cl-formFieldInput:focus-visible {
+  border-bottom-color: var(--ochre) !important;
+  border-bottom-width: 1.5px !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Password eye toggle — sit flush, no chip background */
+.cl-rootBox .cl-formFieldInputShowPasswordButton {
+  border-bottom: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  color: var(--ink-muted) !important;
+}
+
+/* --- Primary button ------------------------------------------------------ */
+.cl-rootBox .cl-formButtonPrimary,
+.cl-rootBox button[data-localization-key="formButtonPrimary"] {
+  background: var(--ink) !important;
+  color: var(--paper) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  height: 52px !important;
+  padding: 0 1.25rem !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 11px !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  transition:
+    background 220ms cubic-bezier(0.22, 1, 0.36, 1),
+    color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cl-rootBox .cl-formButtonPrimary:hover {
+  background: #2a2a25 !important;
+}
+
+.cl-rootBox .cl-formButtonPrimary:disabled,
+.cl-rootBox .cl-formButtonPrimary[disabled] {
+  background: var(--ink-muted) !important;
+  color: var(--paper) !important;
+  opacity: 0.7;
+}
+
+.cl-rootBox .cl-formButtonPrimary .cl-formButtonPrimary__icon,
+.cl-rootBox .cl-formButtonPrimary svg {
+  display: none !important;
+}
+
+/* --- Secondary buttons --------------------------------------------------- */
+.cl-rootBox .cl-formButtonReset,
+.cl-rootBox .cl-button[data-variant="ghost"] {
+  background: transparent !important;
+  color: var(--ink-muted) !important;
+  border: 0 !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 11px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+}
+
+/* --- Footer / Already have an account ----------------------------------- */
+.cl-rootBox .cl-footer,
+.cl-rootBox .cl-footerAction {
+  background: transparent !important;
+  padding: 0 !important;
+  border: 0 !important;
+  margin-top: 0.5rem;
+}
+
+.cl-rootBox .cl-footerActionText,
+.cl-rootBox .cl-footer__action__text {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  color: var(--ink-muted) !important;
+}
+
+.cl-rootBox .cl-footerActionLink,
+.cl-rootBox .cl-footer a {
+  color: var(--ink) !important;
+  font-weight: 500 !important;
+  text-decoration: underline !important;
+  text-decoration-color: var(--ochre) !important;
+  text-underline-offset: 4px !important;
+  text-decoration-thickness: 1px !important;
+  transition: color 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cl-rootBox .cl-footerActionLink:hover,
+.cl-rootBox .cl-footer a:hover {
+  color: var(--ochre) !important;
+}
+
+/* --- Hide Clerk's branded footer "Secured by Clerk" --------------------- */
+.cl-rootBox .cl-internal-1rpdi70,
+.cl-rootBox .cl-footerPages,
+.cl-rootBox .cl-footer__brand,
+.cl-rootBox a[aria-label="Clerk logo"],
+.cl-rootBox .cl-footer__pages {
+  display: none !important;
+}
+
+/* --- "Development mode" banner — keep but make it unobtrusive ----------- */
+.cl-rootBox .cl-internal-1ax0lw7,
+.cl-rootBox .cl-developmentMark,
+.cl-rootBox .cl-internal-3ec56s {
+  display: none !important;
+}
+
+/* --- OTP / verification code field -------------------------------------- */
+.cl-rootBox .cl-otpCodeFieldInput {
+  border: 0 !important;
+  border-bottom: 1px solid var(--rule) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-family: var(--font-serif), Georgia, serif !important;
+  font-size: 22px !important;
+  color: var(--ink) !important;
+  height: 52px !important;
+}
+
+.cl-rootBox .cl-otpCodeFieldInput:focus {
+  border-bottom-color: var(--ochre) !important;
+  outline: none !important;
+}
+
+/* --- Identity preview chip ---------------------------------------------- */
+.cl-rootBox .cl-identityPreview,
+.cl-rootBox .cl-identityPreviewText {
+  border: 1px solid var(--rule) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 13px !important;
+  color: var(--ink) !important;
+}
+
+.cl-rootBox .cl-identityPreviewEditButton,
+.cl-rootBox .cl-identityPreviewEditButton svg {
+  color: var(--ink-muted) !important;
+}
+
+/* --- Alerts / errors ----------------------------------------------------- */
+.cl-rootBox .cl-formFieldErrorText,
+.cl-rootBox .cl-alertText,
+.cl-rootBox .cl-alert {
+  font-family: var(--font-sans), system-ui, sans-serif !important;
+  font-size: 12px !important;
+  letter-spacing: 0.02em !important;
+  color: var(--ink) !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+.cl-rootBox .cl-formFieldErrorText {
+  color: #a9453c !important;
+  font-style: italic;
+}
+
+/* --- Loading spinner ----------------------------------------------------- */
+.cl-rootBox .cl-spinner,
+.cl-rootBox .cl-formButtonPrimary .cl-spinner {
+  color: currentColor !important;
+}

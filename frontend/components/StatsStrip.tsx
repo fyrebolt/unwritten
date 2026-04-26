@@ -84,9 +84,9 @@ export function StatsStrip() {
             <motion.div
               key={i}
               variants={fadeUp}
-              className="flex flex-col items-start px-6 py-16 md:px-12 md:py-0"
+              className="flex flex-col items-center px-6 py-16 text-center md:px-8 md:py-0"
             >
-              <span className="block font-serif text-[clamp(4rem,9vw,8.5rem)] font-normal leading-none tracking-tight text-ink">
+              <span className="block font-serif text-[clamp(3rem,6.5vw,6.5rem)] font-normal leading-none tracking-tight text-ink">
                 <CountUp
                   to={s.value}
                   prefix={s.prefix}

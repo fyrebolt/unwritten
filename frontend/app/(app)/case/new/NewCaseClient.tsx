@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { UploadStage } from "./stages/UploadStage";
 import { VoiceStage } from "./stages/VoiceStage";
@@ -41,7 +40,6 @@ const emptyDraft: IntakeDraft = {
 };
 
 export function NewCaseClient() {
-  const router = useRouter();
   const [stage, setStage] = useState<Stage>("upload");
   const [draft, setDraft] = useState<IntakeDraft>(emptyDraft);
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +73,14 @@ export function NewCaseClient() {
         parseNote: draft.parseNote,
         transcript: draft.transcript,
       });
-      router.push(`/case/${created.id}`);
+      const id = created.id?.trim();
+      if (!id) {
+        throw new Error("The server saved the case but returned no id. Try again.");
+      }
+      // `router.push` after `await` can fail to commit in some browsers / dev
+      // (user-gesture is gone; RSC can stall on HMR). A full document load
+      // always opens the case workspace.
+      window.location.assign(`/case/${id}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Could not save the case.";
       toast.error("Couldn't save case", { description: msg });

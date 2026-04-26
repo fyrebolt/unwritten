@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
@@ -8,8 +9,27 @@ const isPublicRoute = createRouteMatcher([
   "/__unwritten_api(.*)",
 ]);
 
+const isApiRoute = createRouteMatcher(["/api/(.*)"]);
+
 export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) return;
+
+  // For API routes, never let Clerk rewrite to an HTML 404 page on missing
+  // session — that's what produces the dreaded
+  //   "Unexpected token '<', '<!DOCTYPE'... is not valid JSON"
+  // toast on the client. Return a JSON 401 instead and let the route handlers
+  // do their own auth check via auth().userId.
+  if (isApiRoute(req)) {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { ok: false, error: "unauthorized" },
+        { status: 401 },
+      );
+    }
+    return;
+  }
+
   await auth.protect();
 });
 
